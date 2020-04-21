@@ -23,11 +23,11 @@
 
 using System.Runtime.CompilerServices;
 
-namespace Gemstone.GemTem
+namespace Gemstone.Diagnostics
 {
     /// <summary>
-    /// The <see cref="Gemstone.GemTem"/> namespace organizes all Gemstone library functionality
-    /// related to gemtem. The root gemtem namespace also includes common gemtem classes,
+    /// The <see cref="Gemstone.Diagnostics"/> namespace organizes all Gemstone library functionality
+    /// related to diagnostics. The root diagnostics namespace also includes common diagnostics classes,
     /// e.g., <see cref="Class"/>.
     /// </summary>
     [CompilerGenerated]

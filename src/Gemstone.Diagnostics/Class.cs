@@ -21,10 +21,10 @@
 //
 //******************************************************************************************************
 
-namespace Gemstone.GemTem
+namespace Gemstone.Diagnostics
 {
     /// <summary>
-    /// Sample class for new GemTem library.
+    /// Sample class for new Diagnostics library.
     /// </summary>
     public class Class
     {
