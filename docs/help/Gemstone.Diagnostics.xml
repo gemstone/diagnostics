@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>Gemstone.Diagnostics</name>
+  </assembly>
+  <members>
+    <member name="T:Gemstone.Diagnostics.Class">
+      <summary>
+            Sample class for new Diagnostics library.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.Class.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Diagnostics.Class</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+  </members>
+</doc>
