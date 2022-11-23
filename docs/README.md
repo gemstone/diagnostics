@@ -6,7 +6,7 @@
 The Gemstone Diagnostics Library organizes all Gemstone functionality related to diagnostics.
 
 [![GitHub license](https://img.shields.io/github/license/gemstone/diagnostics?color=4CC61E)](https://github.com/gemstone/diagnostics/blob/master/LICENSE)
-[![Build status](https://ci.appveyor.com/api/projects/status/ury75mtaq7tj1sp0?svg=true)](https://ci.appveyor.com/project/ritchiecarroll/diagnostics)
+[![Build status](https://ci.appveyor.com/api/projects/status/2fav17mjqu9hfq8s?svg=true)](https://ci.appveyor.com/project/ritchiecarroll/diagnostics)
 ![CodeQL](https://github.com/gemstone/diagnostics/workflows/CodeQL/badge.svg)
 
 This library includes helpful diagnostics classes like the following:
