@@ -3,7 +3,7 @@
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net7.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>Gemstone.Diagnostics</RootNamespace>
     <PackageId>Gemstone.Diagnostics</PackageId>
     <Authors>Grid Protection Alliance</Authors>
@@ -12,14 +12,14 @@
     <PackageDescription>GPA Gemstone Diagnostics Library</PackageDescription>
     <PackageIcon>gemstone-square-128.png</PackageIcon>
     <Description>GPA Gemstone Diagnostics Library</Description>
-    <Copyright>Copyright © 2020</Copyright>
+    <Copyright>Copyright © 2022</Copyright>
     <PackageProjectUrl>https://github.com/gemstone</PackageProjectUrl>
     <RepositoryUrl>https://github.com/gemstone/diagnostics</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>GPA;Gemstone;library;diagnostics</PackageTags>
-    <LangVersion>8</LangVersion>
+    <LangVersion>latest</LangVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Nullable>enable</Nullable>
     <PlatformTarget>AnyCPU</PlatformTarget>
