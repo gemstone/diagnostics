@@ -8,6 +8,7 @@ The Gemstone Diagnostics Library organizes all Gemstone functionality related to
 [![GitHub license](https://img.shields.io/github/license/gemstone/diagnostics?color=4CC61E)](https://github.com/gemstone/diagnostics/blob/master/LICENSE)
 [![Build status](https://ci.appveyor.com/api/projects/status/2fav17mjqu9hfq8s?svg=true)](https://ci.appveyor.com/project/ritchiecarroll/diagnostics)
 ![CodeQL](https://github.com/gemstone/diagnostics/workflows/CodeQL/badge.svg)
+[![NuGet](https://buildstats.info/nuget/Gemstone.Diagnostics)](https://www.nuget.org/packages/Gemstone.Diagnostics#readme-body-tab)
 
 This library includes helpful diagnostics classes like the following:
 
