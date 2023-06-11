@@ -12,7 +12,7 @@ The Gemstone Diagnostics Library organizes all Gemstone functionality related to
 
 This library includes helpful diagnostics classes like the following:
 
-* [Class](https://gemstone.github.io/diagnostics/help/html/T_gemstone_diagnostics_Class.htm):
+* [LogPublisher](https://gemstone.github.io/diagnostics/help/html/T_Gemstone_Diagnostics_LogPublisher.htm):
   * Represents a diagnostics class for handling diagnostics operations.
 
 Among others.
