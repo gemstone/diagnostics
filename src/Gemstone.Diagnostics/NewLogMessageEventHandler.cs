@@ -1,14 +1,14 @@
-﻿//******************************************************************************************************
-//  Class.cs - Gbtc
+//******************************************************************************************************
+//  NewLogMessageEventHandler.cs - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright � 2016, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
-//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
-//  file except in compliance with the License. You may obtain a copy of the License at:
+//  The GPA licenses this file to you under the Eclipse Public License -v 1.0 (the "License"); you may
+//  not use this file except in compliance with the License. You may obtain a copy of the License at:
 //
-//      http://opensource.org/licenses/MIT
+//      http://www.opensource.org/licenses/eclipse-1.0.php
 //
 //  Unless agreed to in writing, the subject software distributed under the License is distributed on an
 //  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
@@ -16,17 +16,15 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  11/04/2019 - J. Ritchie Carroll
+//  10/24/2016 - Steven E. Chisholm
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-namespace Gemstone.Diagnostics
-{
-    /// <summary>
-    /// Sample class for new Diagnostics library.
-    /// </summary>
-    public class Class
-    {
-    }
-}
+namespace Gemstone.Diagnostics;
+
+/// <summary>
+/// A log message delegate
+/// </summary>
+/// <param name="logMessage">the log message</param>
+public delegate void NewLogMessageEventHandler(LogMessage logMessage);

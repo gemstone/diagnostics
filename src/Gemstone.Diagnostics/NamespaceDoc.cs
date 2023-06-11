@@ -23,15 +23,14 @@
 
 using System.Runtime.CompilerServices;
 
-namespace Gemstone.Diagnostics
+namespace Gemstone.Diagnostics;
+
+/// <summary>
+/// The <see cref="Gemstone.Diagnostics"/> namespace organizes all Gemstone library functionality
+/// related to diagnostics. The root diagnostics namespace also includes common diagnostics classes,
+/// e.g., <see cref="LogPublisher"/>.
+/// </summary>
+[CompilerGenerated]
+class NamespaceDoc
 {
-    /// <summary>
-    /// The <see cref="Gemstone.Diagnostics"/> namespace organizes all Gemstone library functionality
-    /// related to diagnostics. The root diagnostics namespace also includes common diagnostics classes,
-    /// e.g., <see cref="Class"/>.
-    /// </summary>
-    [CompilerGenerated]
-    class NamespaceDoc
-    {
-    }
 }
