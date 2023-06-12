@@ -3,7 +3,7 @@
 # Diagnostics
 ### GPA Gemstone Library
 
-The Gemstone Diagnostics Library organizes all Gemstone functionality related to diagnostics.
+The Gemstone Diagnostics Library organizes all Gemstone functionality related to application diagnostics.
 
 [![GitHub license](https://img.shields.io/github/license/gemstone/diagnostics?color=4CC61E)](https://github.com/gemstone/diagnostics/blob/master/LICENSE)
 [![Build status](https://ci.appveyor.com/api/projects/status/2fav17mjqu9hfq8s?svg=true)](https://ci.appveyor.com/project/ritchiecarroll/diagnostics)
@@ -13,7 +13,7 @@ The Gemstone Diagnostics Library organizes all Gemstone functionality related to
 This library includes helpful diagnostics classes like the following:
 
 * [LogPublisher](https://gemstone.github.io/diagnostics/help/html/T_Gemstone_Diagnostics_LogPublisher.htm):
-  * Represents a diagnostics class for handling diagnostics operations.
+  * Represents a class for handling logging of diagnostic messages.
 
 Among others.
 
