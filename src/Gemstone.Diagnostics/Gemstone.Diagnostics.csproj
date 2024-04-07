@@ -56,13 +56,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
 
     <ProjectReference Include="..\..\..\common\src\Gemstone\Gemstone.Common.csproj" Condition="'$(Configuration)'=='Development'" />
     <PackageReference Include="Gemstone.Common" Version="1.0.110" Condition="'$(Configuration)'!='Development'" />
 
      <ProjectReference Include="..\..\..\threading\src\Gemstone.Threading\Gemstone.Threading.csproj" Condition="'$(Configuration)'=='Development'" /> 
-     <PackageReference Include="Gemstone.Threading" Version="1.0.110" Condition="'$(Configuration)'!='Development'" /> 
+     <PackageReference Include="Gemstone.Threading" Version="1.0.110" Condition="'$(Configuration)'!='Development'" />
+
+     <ProjectReference Include="..\..\..\configuration\src\Gemstone.Configuration\Gemstone.Configuration.csproj" Condition="'$(Configuration)'=='Development'" />
+     <PackageReference Include="Gemstone.Configuration" Version="1.0.101" Condition="'$(Configuration)'!='Development'" />
   </ItemGroup>
 
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
