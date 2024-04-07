@@ -34,7 +34,11 @@ namespace Gemstone.Diagnostics
         /// <inheritdoc />
         public ILogger CreateLogger(string categoryName)
         {
-            return new DiagnosticsLogger(categoryName);
+            DiagnosticsLogger logger = new();
+            
+            logger.Initialize();
+
+            return logger;
         }
 
         /// <inheritdoc />

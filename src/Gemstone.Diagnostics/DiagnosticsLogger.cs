@@ -70,33 +70,38 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
         }
     }
 
-    private readonly LogEventPublisher m_logDebug;
-    private readonly LogEventPublisher m_logInformation;
-    private readonly LogEventPublisher m_logWarning;
-    private readonly LogEventPublisher m_logError;
-    private readonly LogEventPublisher m_logCritical;
+    private LogEventPublisher? m_logDebug;
+    private LogEventPublisher? m_logInformation;
+    private LogEventPublisher? m_logWarning;
+    private LogEventPublisher? m_logError;
+    private LogEventPublisher? m_logCritical;
 
     /// <summary>
     /// Gets or sets the settings category for the <see cref="DiagnosticsLogger"/>.
     /// </summary>
-    public string SettingsCategory { get; }
+    public string SettingsCategory { get; init; } = DefaultSettingsCategory;
 
     /// <summary>
     /// Gets the <see cref="LogPublisher"/> for the <see cref="DiagnosticsLogger"/>.
     /// </summary>
-    public LogPublisher LogPublisher { get; }
+    public LogPublisher LogPublisher { get; } = Logger.CreatePublisher(typeof(DiagnosticsLogger), MessageClass.Framework);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DiagnosticsLogger"/> class.
     /// </summary>
-    /// <param name="categoryName">The name of the logger.</param>
-    public DiagnosticsLogger(string categoryName)
+    public DiagnosticsLogger()
     {
-        LogPublisher = Logger.CreatePublisher(typeof(DiagnosticsLogger), MessageClass.Framework);
-
         DefaultLogPublisher ??= LogPublisher;
+    }
 
-        SettingsCategory = categoryName;
+    /// <summary>
+    /// Initializes the <see cref="DiagnosticsLogger"/>.
+    /// </summary>
+    public void Initialize()
+    {
+        if (string.IsNullOrWhiteSpace(SettingsCategory))
+            throw new InvalidOperationException("Settings category has not been defined.");
+
         dynamic loggingSettings = Settings.Instance[SettingsCategory];
 
         // Retrieve application log path as defined in the config file
@@ -139,11 +144,11 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
             Logger.SwallowException(ex, $"Failed to initialize Logger.FileWriter: {ex.Message}");
         }
 
-        m_logDebug = LogPublisher.RegisterEvent(MessageLevel.Debug, MessageFlags.None, $"{categoryName} Debug Event", 0, MessageRate.PerSecond(loggingSettings.DebugRate ?? DefaultRateLimit), loggingSettings.DebugBurstLimit ?? DefaultBurstLimit);
-        m_logInformation = LogPublisher.RegisterEvent(MessageLevel.Info, MessageFlags.None, $"{categoryName} Information Event", 0, MessageRate.PerSecond(loggingSettings.InformationRate ?? DefaultRateLimit), loggingSettings.InformationBurstLimit ?? DefaultBurstLimit);
-        m_logWarning = LogPublisher.RegisterEvent(MessageLevel.Warning, MessageFlags.None, $"{categoryName} Warning Event", 0, MessageRate.PerSecond(loggingSettings.WarningRate ?? DefaultRateLimit), loggingSettings.WarningBurstLimit ?? DefaultBurstLimit);
-        m_logError = LogPublisher.RegisterEvent(MessageLevel.Error, MessageFlags.None, $"{categoryName} Error Event", 0, MessageRate.PerSecond(loggingSettings.ErrorRate ?? DefaultRateLimit), loggingSettings.ErrorBurstLimit ?? DefaultBurstLimit);
-        m_logCritical = LogPublisher.RegisterEvent(MessageLevel.Critical, MessageFlags.None, $"{categoryName} Critical Event", 0, MessageRate.PerSecond(loggingSettings.CriticalRate ?? DefaultRateLimit), loggingSettings.CriticalBurstLimit ?? DefaultBurstLimit);
+        m_logDebug = LogPublisher.RegisterEvent(MessageLevel.Debug, MessageFlags.None, "Debug Event", 0, MessageRate.PerSecond(loggingSettings.DebugRate ?? DefaultRateLimit), loggingSettings.DebugBurstLimit ?? DefaultBurstLimit);
+        m_logInformation = LogPublisher.RegisterEvent(MessageLevel.Info, MessageFlags.None, "Information Event", 0, MessageRate.PerSecond(loggingSettings.InformationRate ?? DefaultRateLimit), loggingSettings.InformationBurstLimit ?? DefaultBurstLimit);
+        m_logWarning = LogPublisher.RegisterEvent(MessageLevel.Warning, MessageFlags.None, "Warning Event", 0, MessageRate.PerSecond(loggingSettings.WarningRate ?? DefaultRateLimit), loggingSettings.WarningBurstLimit ?? DefaultBurstLimit);
+        m_logError = LogPublisher.RegisterEvent(MessageLevel.Error, MessageFlags.None, "Error Event", 0, MessageRate.PerSecond(loggingSettings.ErrorRate ?? DefaultRateLimit), loggingSettings.ErrorBurstLimit ?? DefaultBurstLimit);
+        m_logCritical = LogPublisher.RegisterEvent(MessageLevel.Critical, MessageFlags.None, "Critical Event", 0, MessageRate.PerSecond(loggingSettings.CriticalRate ?? DefaultRateLimit), loggingSettings.CriticalBurstLimit ?? DefaultBurstLimit);
 
         LogPublisher.InitialStackMessages = LogStackMessages.Empty;
     }
@@ -183,19 +188,19 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
         {
             case LogLevel.Trace:
             case LogLevel.Debug:
-                m_logDebug.Publish(message, details, exception);
+                m_logDebug?.Publish(message, details, exception);
                 break;
             case LogLevel.Information:
-                m_logInformation.Publish(message, details, exception);
+                m_logInformation?.Publish(message, details, exception);
                 break;
             case LogLevel.Warning:
-                m_logWarning.Publish(message, details, exception);
+                m_logWarning?.Publish(message, details, exception);
                 break;
             case LogLevel.Error:
-                m_logError.Publish(message, details, exception);
+                m_logError?.Publish(message, details, exception);
                 break;
             case LogLevel.Critical:
-                m_logCritical.Publish(message, details, exception);
+                m_logCritical?.Publish(message, details, exception);
                 break;
         }
     }
