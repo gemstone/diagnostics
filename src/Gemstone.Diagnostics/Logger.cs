@@ -20,15 +20,16 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+// ReSharper disable InconsistentNaming
+// ReSharper disable MemberHidesStaticFromOuterClass
 
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Gemstone.Configuration;
 using Gemstone.Diagnostics.Internal;
 using Gemstone.Diagnostics.Utilities;
-
-// ReSharper disable InconsistentNaming
-// ReSharper disable MemberHidesStaticFromOuterClass
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace Gemstone.Diagnostics;
 
@@ -37,13 +38,6 @@ namespace Gemstone.Diagnostics;
 /// </summary>
 public static class Logger
 {
-    private enum SuppressionMode
-    {
-        None = 0,
-        FirstChanceExceptionOnly = 1,
-        AllMessages = 2,
-    }
-
     private static class ThreadLocalThreadStack
     {
         [ThreadStatic]
@@ -66,24 +60,16 @@ public static class Logger
         public int PreviousFirstChanceExceptionSequenceNumber;
         private readonly List<LogStackMessages> m_threadStackDetails = new();
         private LogStackMessages? m_stackMessageCache;
-        private readonly List<SuppressionMode> m_logMessageSuppressionStack = new();
-
-        public bool ShouldSuppressLogMessages => m_logMessageSuppressionStack.Count > 0 && m_logMessageSuppressionStack[^1] >= SuppressionMode.AllMessages;
-        public bool ShouldSuppressFirstChanceLogMessages => m_logMessageSuppressionStack.Count > 0 && m_logMessageSuppressionStack[^1] >= SuppressionMode.FirstChanceExceptionOnly;
 
         public LogStackMessages GetStackMessages()
         {
             if (m_stackMessageCache is null)
             {
-                if (m_threadStackDetails.Count == 0)
-                {
-                    m_stackMessageCache = LogStackMessages.Empty;
-                }
-                else
-                {
-                    m_stackMessageCache = new LogStackMessages(m_threadStackDetails);
-                }
+                m_stackMessageCache = m_threadStackDetails.Count == 0 ? 
+                    LogStackMessages.Empty : 
+                    new LogStackMessages(m_threadStackDetails);
             }
+
             return m_stackMessageCache;
         }
 
@@ -93,39 +79,18 @@ public static class Logger
             m_threadStackDetails.Add(messages);
 
             int depth = m_threadStackDetails.Count;
-            if (depth >= s_stackDisposalStackMessages!.Length)
-            {
+            
+            if (depth >= s_stackDisposalStackMessages!.Length) 
                 GrowStackDisposal(depth + 1);
-            }
+            
             return s_stackDisposalStackMessages[depth];
-        }
-
-        public StackDisposal SuppressLogMessages(SuppressionMode suppressionMode)
-        {
-            m_logMessageSuppressionStack.Add(suppressionMode);
-            int depth = m_logMessageSuppressionStack.Count;
-            if (depth >= s_stackDisposalSuppressionFlags!.Length)
-            {
-                GrowStackDisposal(depth + 1);
-            }
-            return s_stackDisposalSuppressionFlags[depth];
         }
 
         public void RemoveStackMessage(int depth)
         {
-            while (m_threadStackDetails.Count >= depth)
-            {
+            while (m_threadStackDetails.Count >= depth) 
                 m_threadStackDetails.RemoveAt(m_threadStackDetails.Count - 1);
-            }
             m_stackMessageCache = null;
-        }
-
-        public void RemoveSuppression(int depth)
-        {
-            while (m_logMessageSuppressionStack.Count >= depth)
-            {
-                m_logMessageSuppressionStack.RemoveAt(m_logMessageSuppressionStack.Count - 1);
-            }
         }
     }
 
@@ -135,18 +100,18 @@ public static class Logger
     /// The default console based log subscriber.
     /// </summary>
     public static readonly LogSubscriptionConsole Console;
+
     /// <summary>
     /// The default file based log writer.
     /// </summary>
     public static readonly LogSubscriptionFileWriter FileWriter;
 
     private static readonly LogPublisher Log;
-    private static readonly LogEventPublisher EventFirstChanceException;
+    private static readonly LogEventPublisher EventFirstChanceException = default!;
     private static readonly LogEventPublisher EventAppDomainException;
     private static readonly LogEventPublisher EventSwallowedException;
     private static StackDisposal[]? s_stackDisposalStackMessages;
-    private static StackDisposal[]? s_stackDisposalSuppressionFlags;
-    private static readonly object SyncRoot = new();
+    private static readonly object SyncRoot = LogSuppression.SyncRoot;
 
     static Logger()
     {
@@ -159,18 +124,35 @@ public static class Logger
         Console = new LogSubscriptionConsole();
         FileWriter = new LogSubscriptionFileWriter(1000);
 
-        AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
+        dynamic loggingSettings = Settings.Instance[DiagnosticsLogger.DefaultSettingsCategory];
+
+        bool logFirstChanceExceptions = loggingSettings["LogFirstChanceExceptions", true, "Defines flag that determines if first chance exceptions are logged."];
+
+        if (logFirstChanceExceptions)
+            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
+
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
         Log = CreatePublisher(typeof(Logger), MessageClass.Component);
         Log.InitialStackTrace = LogStackTrace.Empty;
-        EventFirstChanceException = Log.RegisterEvent(MessageLevel.NA, MessageFlags.SystemHealth, "First Chance App Domain Exception", 30, MessageRate.PerSecond(30), 1000);
+
+        if (logFirstChanceExceptions)
+        {
+            int firstChanceExceptionRate = loggingSettings["FirstChanceExceptionRate", DiagnosticsLogger.DefaultRateLimit, "Defines the maximum expected rate at which first change exception messages are logged for rate limiting."];
+            int firstChanceExceptionBurstLimit = loggingSettings["FirstChanceExceptionBurstLimit", DiagnosticsLogger.DefaultBurstLimit, "Defines the maximum number of first chance exception messages that can be logged in a burst."];
+            
+            EventFirstChanceException = Log.RegisterEvent(MessageLevel.Info, MessageFlags.None, "First Chance App Domain Exception", 30, MessageRate.PerSecond(firstChanceExceptionRate), firstChanceExceptionBurstLimit);
+        }
+
         EventAppDomainException = Log.RegisterEvent(MessageLevel.Critical, MessageFlags.SystemHealth, "Unhandled App Domain Exception");
-        EventSwallowedException = Log.RegisterEvent(MessageLevel.Debug, MessageFlags.None, "Exception was Swallowed", 30, MessageRate.PerSecond(30), 1000);
+
+        int swallowedExceptionRate = loggingSettings["SwallowedExceptionRate", DiagnosticsLogger.DefaultRateLimit, "Defines the maximum expected rate at which swallowed exception messages are logged for rate limiting."];
+        int swallowedExceptionBurstLimit = loggingSettings["SwallowedExceptionBurstLimit", DiagnosticsLogger.DefaultBurstLimit, "Defines the maximum number of swallowed exception messages that can be logged in a burst."];
+        
+        EventSwallowedException = Log.RegisterEvent(MessageLevel.Debug, MessageFlags.None, "Exception was Swallowed", 30, MessageRate.PerSecond(swallowedExceptionRate), swallowedExceptionBurstLimit);
 
         ShutdownHandler.Initialize();
     }
-
 
     /// <summary>
     /// Ensures that the logger has been initialized. 
@@ -208,21 +190,25 @@ public static class Logger
     /// <summary>
     /// Gets if Log Messages should be suppressed.
     /// </summary>
-    public static bool ShouldSuppressLogMessages => ThreadLocalThreadStack.Value.ShouldSuppressLogMessages;
+    public static bool ShouldSuppressLogMessages => LogSuppression.ShouldSuppressLogMessages;
 
     /// <summary>
     /// Gets if First Chance Exception Log Messages should be suppressed.
     /// </summary>
-    public static bool ShouldSuppressFirstChanceLogMessages => ThreadLocalThreadStack.Value.ShouldSuppressFirstChanceLogMessages;
+    public static bool ShouldSuppressFirstChanceLogMessages => LogSuppression.ShouldSuppressFirstChanceLogMessages;
 
     private static void CurrentDomain_FirstChanceException(object? sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
     {
         if ((Thread.CurrentThread.ThreadState & (ThreadState.AbortRequested | ThreadState.Aborted)) != 0)
-        {
             return;
-        }
+
         if (ShouldSuppressFirstChanceLogMessages)
             return;
+        
+        // Do not log RuntimeBinderExceptions - these are normal exceptions on dynamic objects when properties are not found.
+        if (e.Exception is RuntimeBinderException)
+            return;
+
         using (SuppressFirstChanceExceptionLogMessages())
         {
             try
@@ -240,9 +226,8 @@ public static class Logger
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         if ((Thread.CurrentThread.ThreadState & (ThreadState.AbortRequested | ThreadState.Aborted)) != 0)
-        {
             return;
-        }
+
         using (SuppressFirstChanceExceptionLogMessages())
         {
             try
@@ -320,7 +305,7 @@ public static class Logger
     /// <returns></returns>
     public static IDisposable SuppressLogMessages()
     {
-        return ThreadLocalThreadStack.Value.SuppressLogMessages(SuppressionMode.AllMessages);
+        return LogSuppression.SuppressLogMessages();
     }
 
     /// <summary>
@@ -330,7 +315,7 @@ public static class Logger
     /// <returns></returns>
     public static IDisposable SuppressFirstChanceExceptionLogMessages()
     {
-        return ThreadLocalThreadStack.Value.SuppressLogMessages(SuppressionMode.FirstChanceExceptionOnly);
+        return LogSuppression.SuppressFirstChanceExceptionLogMessages();
     }
 
     /// <summary>
@@ -340,7 +325,7 @@ public static class Logger
     /// <returns></returns>
     public static IDisposable OverrideSuppressLogMessages()
     {
-        return ThreadLocalThreadStack.Value.SuppressLogMessages(SuppressionMode.None);
+        return LogSuppression.OverrideSuppressLogMessages();
     }
 
     /// <summary>
@@ -364,17 +349,11 @@ public static class Logger
                 //      locality of reference.
                 int lastSize = s_stackDisposalStackMessages?.Length ?? 2;
                 StackDisposal[] stackMessages = new StackDisposal[lastSize * 2];
-                for (int x = 0; x < stackMessages.Length; x++)
-                {
+                
+                for (int x = 0; x < stackMessages.Length; x++) 
                     stackMessages[x] = new StackDisposal(x, DisposeStackMessage);
-                }
-                StackDisposal[] suppressionFlags = new StackDisposal[lastSize * 2];
-                for (int x = 0; x < suppressionFlags.Length; x++)
-                {
-                    suppressionFlags[x] = new StackDisposal(x, DisposeSuppressionFlags);
-                }
+
                 s_stackDisposalStackMessages = stackMessages;
-                s_stackDisposalSuppressionFlags = suppressionFlags;
             }
         }
     }
@@ -382,35 +361,5 @@ public static class Logger
     private static void DisposeStackMessage(int depth)
     {
         ThreadLocalThreadStack.Value.RemoveStackMessage(depth);
-    }
-    private static void DisposeSuppressionFlags(int depth)
-    {
-        ThreadLocalThreadStack.Value.RemoveSuppression(depth);
-    }
-
-    /// <summary>
-    /// A class that will undo a temporary change in the stack variables. Note, this class 
-    /// will be reused. Therefore setting some kind of disposed flag will cause make this 
-    /// class unusable. The side effect of multiple calls to Dispose is tolerable.
-    /// </summary>
-    private class StackDisposal : IDisposable
-    {
-        private readonly int m_depth;
-        private readonly Action<int> m_callback;
-
-        internal StackDisposal(int depth, Action<int> callback)
-        {
-            m_depth = depth;
-            m_callback = callback;
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            m_callback(m_depth);
-        }
     }
 }

@@ -179,10 +179,19 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
         if (string.IsNullOrEmpty(message))
             return;
 
-        string details = string.IsNullOrWhiteSpace(eventId.Name) ? $"[{eventId.Id}]" : $"{eventId.Name} [{eventId.Id}]";
+        string? details;
 
-        if (Logger.FileWriter.Verbose >= VerboseLevel.Ultra) 
-            details += $" for {state?.GetType().Name ?? "undefined type"}";
+        if (string.IsNullOrWhiteSpace(eventId.Name) && eventId.Id == 0)
+        {
+            details = null;
+        }
+        else
+        {
+            details = string.IsNullOrWhiteSpace(eventId.Name) ? $"[{eventId.Id}]" : $"{eventId.Name} [{eventId.Id}]";
+
+            if (Logger.FileWriter.Verbose >= VerboseLevel.Ultra)
+                details += $" for {state?.GetType().Name ?? "undefined type"}";
+        }
 
         switch (logLevel)
         {
@@ -234,11 +243,11 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
         loggingSettings.ErrorRate = (DefaultRateLimit, "Defines the maximum expected rate at which error messages are logged for rate limiting.");
         loggingSettings.CriticalRate = (DefaultRateLimit, "Defines the maximum expected rate at which critical messages are logged for rate limiting.");
 
-        loggingSettings.DebugBurstLimit = (DefaultBurstLimit, "Defines the maximum number of debug messages that can be burst at one time.");
-        loggingSettings.InformationBurstLimit = (DefaultBurstLimit, "Defines the maximum number of information messages that can be burst at one time.");
-        loggingSettings.WarningBurstLimit = (DefaultBurstLimit, "Defines the maximum number of warning messages that can be burst at one time.");
-        loggingSettings.ErrorBurstLimit = (DefaultBurstLimit, "Defines the maximum number of error messages that can be burst at one time.");
-        loggingSettings.CriticalBurstLimit = (DefaultBurstLimit, "Defines the maximum number of critical messages that can be burst at one time.");
+        loggingSettings.DebugBurstLimit = (DefaultBurstLimit, "Defines the maximum number of debug messages that can be logged in a burst.");
+        loggingSettings.InformationBurstLimit = (DefaultBurstLimit, "Defines the maximum number of information messages that can be logged in a burst.");
+        loggingSettings.WarningBurstLimit = (DefaultBurstLimit, "Defines the maximum number of warning messages that can be logged in a burst.");
+        loggingSettings.ErrorBurstLimit = (DefaultBurstLimit, "Defines the maximum number of error messages that can be logged in a burst.");
+        loggingSettings.CriticalBurstLimit = (DefaultBurstLimit, "Defines the maximum number of critical messages that can be logged in a burst.");
 
         loggingSettings.Verbosity = (DefaultLogVerbosity, "Defines the verbosity level for logging.");
     }
