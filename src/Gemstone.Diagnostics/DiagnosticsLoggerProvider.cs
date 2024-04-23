@@ -23,27 +23,26 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Gemstone.Diagnostics
+namespace Gemstone.Diagnostics;
+
+/// <summary>
+/// The provider for the <see cref="DiagnosticsLogger"/>.
+/// </summary>
+[ProviderAlias(DiagnosticsLogger.DefaultSettingsCategory)]
+public class DiagnosticsLoggerProvider : ILoggerProvider
 {
-    /// <summary>
-    /// The provider for the <see cref="DiagnosticsLogger"/>.
-    /// </summary>
-    [ProviderAlias(DiagnosticsLogger.DefaultSettingsCategory)]
-    public class DiagnosticsLoggerProvider : ILoggerProvider
+    /// <inheritdoc />
+    public ILogger CreateLogger(string categoryName)
     {
-        /// <inheritdoc />
-        public ILogger CreateLogger(string categoryName)
-        {
-            DiagnosticsLogger logger = new();
+        DiagnosticsLogger logger = new();
             
-            logger.Initialize();
+        logger.Initialize();
 
-            return logger;
-        }
+        return logger;
+    }
 
-        /// <inheritdoc />
-        public void Dispose()
-        {
-        }
+    /// <inheritdoc />
+    public void Dispose()
+    {
     }
 }
