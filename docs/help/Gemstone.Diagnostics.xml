@@ -4,6 +4,170 @@
     <name>Gemstone.Diagnostics</name>
   </assembly>
   <members>
+    <member name="T:Gemstone.Diagnostics.ChildProcessManager">
+      <summary>
+            Represents a manager for automatically terminating child processes.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.ChildProcessManager.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Diagnostics.ChildProcessManager" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.ChildProcessManager.AddProcess(System.Diagnostics.Process)">
+      <summary>
+            Associates the specified <paramref name="process" /> as a child of this <see cref="T:Gemstone.Diagnostics.ChildProcessManager" /> instance.
+            </summary>
+      <param name="process">The <see cref="T:System.Diagnostics.Process" /> to associate.</param>
+      <remarks>
+        <para>
+            The <paramref name="process" /> will be managed as an associated process of this <see cref="T:Gemstone.Diagnostics.ChildProcessManager" />
+            instance. When this <see cref="T:Gemstone.Diagnostics.ChildProcessManager" /> instance is disposed or garbage collected, the children
+            processes will be terminated.
+            </para>
+        <para>
+            Creating an instance of this class with lifetime scope of the executing application will cause any child processes
+            to be terminated when the parent process shuts down, on Windows environments this will happen even when the parent
+            process termination is abnormal.
+            </para>
+      </remarks>
+    </member>
+    <member name="M:Gemstone.Diagnostics.ChildProcessManager.Dispose">
+      <summary>
+            Releases all the resources used by the <see cref="T:Gemstone.Diagnostics.ChildProcessManager" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.ChildProcessManager.Finalize">
+      <summary>
+            Make sure child processes get disposed.
+            </summary>
+    </member>
+    <member name="E:Gemstone.Diagnostics.ChildProcessManager.TerminationException">
+      <summary>
+            Raised when there is an exception while attempting to terminate child process.
+            </summary>
+      <remarks>
+            This is currently only raised on non-Windows operating systems.
+            </remarks>
+    </member>
+    <member name="T:Gemstone.Diagnostics.DiagnosticsLogger">
+      <summary>
+            A logger that writes messages to the <see cref="T:Gemstone.Diagnostics.Logger" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.#ctor">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" /> class.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.BeginScope``1(``0)">
+      <summary>
+            Begins a logical operation scope.
+            </summary>
+      <param name="state">The identifier for the scope.</param>
+      <typeparam name="TState">The type of the state to begin scope for.</typeparam>
+      <returns>An <see cref="T:System.IDisposable" /> that ends the logical operation scope on dispose.</returns>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultBurstLimit">
+      <summary>
+            The default burst limit for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultLogPath">
+      <summary>
+            Gets the default log path for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLogger.DefaultLogPublisher">
+      <summary>
+            Gets the default log publisher for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultLogVerbosity">
+      <summary>
+            The default log verbosity for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultMaxLogFiles">
+      <summary>
+            The default maximum number of log files for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultRateLimit">
+      <summary>
+            The default expected message rate limit for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultSettingsCategory">
+      <summary>
+            The default settings category for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.DefineSettings(Gemstone.Configuration.Settings,System.String)">
+      <summary>
+            Establishes default settings for the config file.
+            </summary>
+      <param name="settings">Settings instance used to hold configuration.</param>
+      <param name="settingsCategory">The config file settings category under which the settings are defined.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.Initialize">
+      <summary>
+            Initializes the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.IsEnabled(Microsoft.Extensions.Logging.LogLevel)">
+      <summary>
+            Checks if the given <paramref name="logLevel" /> is enabled.
+            </summary>
+      <param name="logLevel">Level to be checked.</param>
+      <returns>
+        <c>true</c> if enabled.</returns>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.Log``1(Microsoft.Extensions.Logging.LogLevel,Microsoft.Extensions.Logging.EventId,``0,System.Exception,System.Func{``0,System.Exception,System.String})">
+      <summary>
+            Writes a log entry.
+            </summary>
+      <param name="logLevel">Entry will be written on this level.</param>
+      <param name="eventId">Id of the event.</param>
+      <param name="state">The entry to be written. Can be also an object.</param>
+      <param name="exception">The exception related to this entry.</param>
+      <param name="formatter">Function to create a <see cref="T:System.String" /> message of the <paramref name="state" /> and <paramref name="exception" />.</param>
+      <typeparam name="TState">The type of the object to be written.</typeparam>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLogger.LogPublisher">
+      <summary>
+            Gets the <see cref="P:Gemstone.Diagnostics.DiagnosticsLogger.LogPublisher" /> for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLogger.SettingsCategory">
+      <summary>
+            Gets or sets the settings category for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Diagnostics.DiagnosticsLoggerProvider">
+      <summary>
+            The provider for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLoggerProvider.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Diagnostics.DiagnosticsLoggerProvider</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLoggerProvider.CreateLogger(System.String)">
+      <summary>
+            Creates a new <see cref="T:Microsoft.Extensions.Logging.ILogger" /> instance.
+            </summary>
+      <param name="categoryName">The category name for messages produced by the logger.</param>
+      <returns>The instance of <see cref="T:Microsoft.Extensions.Logging.ILogger" /> that was created.</returns>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLoggerProvider.Dispose">
+      <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+    </member>
     <member name="T:Gemstone.Diagnostics.DisposableLoggingClassBase">
       <summary>
             A helper class that implements <see cref="T:System.IDisposable" /> that will raise log messages
@@ -390,6 +554,49 @@
       <param name="message">message to include, such as a reason why it was swallowed.</param>
       <param name="details">additional details.</param>
       <param name="additionalFlags">additional flags that can be set with this swallowed exception.</param>
+    </member>
+    <member name="T:Gemstone.Diagnostics.LoggerExtensions">
+      <summary>
+            Defines extension methods related to logging.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.LoggerExtensions.AddGemstoneDiagnostics(Microsoft.Extensions.Logging.ILoggingBuilder)">
+      <summary>
+            Adds Gemstone <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" /> to the factory.
+            </summary>
+      <param name="builder">The extension method argument.</param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Diagnostics.LoggerExtensions.AddGemstoneDiagnostics(Microsoft.Extensions.Logging.ILoggingBuilder)</parameter>
+          </include>
+        </markup>
+      </returns>
+    </member>
+    <member name="M:Gemstone.Diagnostics.LoggerExtensions.ToLogLevel(Gemstone.Diagnostics.MessageLevel)">
+      <summary>
+            Converts a <see cref="T:Gemstone.Diagnostics.MessageLevel" /> to a <see cref="T:Microsoft.Extensions.Logging.LogLevel" />.
+            </summary>
+      <param name="level">
+        <see cref="T:Gemstone.Diagnostics.MessageLevel" /> to convert.</param>
+      <returns>
+        <see cref="T:Microsoft.Extensions.Logging.LogLevel" /> equivalent of the specified <see cref="T:Gemstone.Diagnostics.MessageLevel" />.</returns>
+      <remarks>
+            Note that <see cref="F:Microsoft.Extensions.Logging.LogLevel.Trace" /> has no equivalent <see cref="T:Gemstone.Diagnostics.MessageLevel" />.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Diagnostics.LoggerExtensions.ToMessageLevel(Microsoft.Extensions.Logging.LogLevel)">
+      <summary>
+            Converts a <see cref="T:Microsoft.Extensions.Logging.LogLevel" /> to a <see cref="T:Gemstone.Diagnostics.MessageLevel" />.
+            </summary>
+      <param name="level">
+        <see cref="T:Microsoft.Extensions.Logging.LogLevel" /> to convert.</param>
+      <returns>
+        <see cref="T:Gemstone.Diagnostics.MessageLevel" /> equivalent of the specified <see cref="T:Microsoft.Extensions.Logging.LogLevel" />.</returns>
+      <remarks>
+            Note that <see cref="F:Microsoft.Extensions.Logging.LogLevel.Trace" /> has no equivalent <see cref="T:Gemstone.Diagnostics.MessageLevel" />.
+            </remarks>
     </member>
     <member name="T:Gemstone.Diagnostics.LogMessage">
       <summary>
@@ -1514,6 +1721,505 @@
             </summary>
       <param name="logMessage">the log message</param>
     </member>
+    <member name="T:Gemstone.Diagnostics.PerformanceCounter">
+      <summary>
+             Represents an extension of the basic <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> providing additional statistical logic.
+             </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceCounter.#ctor(System.String,System.String,System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> class.
+            </summary>
+      <param name="categoryName">The name of the performance counter category (performance object) with which this performance counter is associated.</param>
+      <param name="counterName">The name of the performance counter.</param>
+      <param name="instanceName">The name of the performance counter category instance, or an empty string (""), if the category contains a single instance.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceCounter.#ctor(System.String,System.String,System.String,System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> class.
+            </summary>
+      <param name="categoryName">The name of the performance counter category (performance object) with which this performance counter is associated.</param>
+      <param name="counterName">The name of the performance counter.</param>
+      <param name="instanceName">The name of the performance counter category instance, or an empty string (""), if the category contains a single instance.</param>
+      <param name="aliasName">The alias name for the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceCounter.#ctor(System.String,System.String,System.String,System.String,System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> class.
+            </summary>
+      <param name="categoryName">The name of the performance counter category (performance object) with which this performance counter is associated.</param>
+      <param name="counterName">The name of the performance counter.</param>
+      <param name="instanceName">The name of the performance counter category instance, or an empty string (""), if the category contains a single instance.</param>
+      <param name="aliasName">The alias name for the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+      <param name="valueUnit">The measurement unit for the statistical values of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceCounter.#ctor(System.String,System.String,System.String,System.String,System.String,System.Single,System.Boolean)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> class.
+            </summary>
+      <param name="categoryName">The name of the performance counter category (performance object) with which this performance counter is associated.</param>
+      <param name="counterName">The name of the performance counter.</param>
+      <param name="instanceName">The name of the performance counter category instance, or an empty string (""), if the category contains a single instance.</param>
+      <param name="aliasName">The alias name for the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+      <param name="valueUnit">The measurement unit for the statistical values of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+      <param name="valueDivisor">The divisor to be applied to the statistical values of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+      <param name="readOnly">Flag that determines if this counter is read-only.</param>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.AliasName">
+      <summary>
+            Gets or sets an alias name for the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.AverageValue">
+      <summary>
+            Gets the average value from the samples of the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object that this <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> objects wraps.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.PerformanceCounter.DefaultSamplingWindow">
+      <summary>
+            Default number of samples over which statistical values are to be calculated.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.PerformanceCounter.DefaultValueDivisor">
+      <summary>
+            Default divisor to be applied to the statistical value.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.PerformanceCounter.DefaultValueUnit">
+      <summary>
+            Default measurement unit of the statistical values.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceCounter.Dispose">
+      <summary>
+            Releases all the resources used by the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceCounter.Dispose(System.Boolean)">
+      <summary>
+            Releases the unmanaged resources used by the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object and optionally 
+            releases the managed resources.
+            </summary>
+      <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceCounter.Finalize">
+      <summary>
+            Releases the unmanaged resources before the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object is reclaimed by <see cref="T:System.GC" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.LastValue">
+      <summary>
+            Gets the last sample value from the samples of the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.LifetimeAverageValue">
+      <summary>
+            Gets the average sample value over the entire lifetime of the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.LifetimeMaximumValue">
+      <summary>
+            Gets the maximum sample value over the entire lifetime of the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.LifetimeSampleCount">
+      <summary>
+            Gets the total values sampled over the entire lifetime of the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.MaximumValue">
+      <summary>
+            Gets the maximum sample value from the samples of the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.MinimumValue">
+      <summary>
+            Gets the minimum sample value from the samples of the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceCounter.Reset">
+      <summary>
+            Resets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object to its initial state.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceCounter.Sample">
+      <summary>
+            Obtains a sample value from the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.SampleAdjuster">
+      <summary>
+            Gets or sets an optional custom sample adjustment function. Can be used to apply linear adjustments to sampled values.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.SampleFilter">
+      <summary>
+            Gets or sets an optional custom sample filter function. Can be used to skip sampled values that are unreasonable.
+            </summary>
+      <remarks>
+            Return <c>true</c> if sample should be filtered; otherwise, <c>false</c>.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.Samples">
+      <summary>
+            Gets a list of sampled values from the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.BaseCounter" /></summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.SamplingWindow">
+      <summary>
+            Gets or sets the number of samples to use to determine the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.LastValue" />, 
+            <see cref="P:Gemstone.Diagnostics.PerformanceCounter.MinimumValue" />, <see cref="P:Gemstone.Diagnostics.PerformanceCounter.MaximumValue" /> and <see cref="P:Gemstone.Diagnostics.PerformanceCounter.AverageValue" />.
+            </summary>
+      <exception cref="T:System.ArgumentOutOfRangeException">The value being assigned is not greater than 0.</exception>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.ValueDivisor">
+      <summary>
+            Gets or sets the divisor to be applied to the <see cref="P:Gemstone.Diagnostics.PerformanceCounter.LastValue" />, <see cref="P:Gemstone.Diagnostics.PerformanceCounter.MinimumValue" />, 
+            <see cref="P:Gemstone.Diagnostics.PerformanceCounter.MaximumValue" /> and <see cref="P:Gemstone.Diagnostics.PerformanceCounter.AverageValue" />.
+            </summary>
+      <exception cref="T:System.ArgumentOutOfRangeException">The value being assigned is not greater than 0.</exception>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceCounter.ValueUnit">
+      <summary>
+            Gets or sets the measurement unit of <see cref="P:Gemstone.Diagnostics.PerformanceCounter.LastValue" />, <see cref="P:Gemstone.Diagnostics.PerformanceCounter.MinimumValue" />, 
+            <see cref="P:Gemstone.Diagnostics.PerformanceCounter.MaximumValue" /> and <see cref="P:Gemstone.Diagnostics.PerformanceCounter.AverageValue" /></summary>
+      <exception cref="T:System.ArgumentNullException">The value being assigned is a null or empty string.</exception>
+    </member>
+    <member name="T:Gemstone.Diagnostics.PerformanceMonitor">
+      <summary>
+             Represents a process performance monitor that operates similar to the Windows Performance Monitor utility
+             that can be used to monitor system performance.
+             </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitor.#ctor">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" /> class.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitor.#ctor(System.Double,System.Boolean)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" /> class.
+            </summary>
+      <param name="samplingInterval">Interval, in milliseconds, at which the <see cref="P:Gemstone.Diagnostics.PerformanceMonitorBase.Counters" /> are to be sampled.</param>
+      <param name="addDefaultCounters">Set to <c>true</c> to add default counters; otherwise <c>false</c>.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitor.#ctor(System.String,System.Boolean)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" /> class.
+            </summary>
+      <param name="processName">Name of the <see cref="T:System.Diagnostics.Process" /> whose performance is to be monitored.</param>
+      <param name="addDefaultCounters">Set to <c>true</c> to add default counters; otherwise <c>false</c>.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitor.#ctor(System.String,System.Double,System.Boolean)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" /> class.
+            </summary>
+      <param name="processName">Name of the <see cref="T:System.Diagnostics.Process" /> whose performance is to be monitored.</param>
+      <param name="samplingInterval">Interval, in milliseconds, at which the <see cref="P:Gemstone.Diagnostics.PerformanceMonitorBase.Counters" /> are to be sampled.</param>
+      <param name="addDefaultCounters">Set to <c>true</c> to add default counters; otherwise <c>false</c>.</param>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.CPUUsage">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the processor utilization of the monitored process.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitor.Finalize">
+      <summary>
+            Releases the unmanaged resources before the <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" /> object is reclaimed by <see cref="T:System.GC" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.HandleCount">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the total number of handles currently open by 
+            the monitored process.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.IOActivity">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the rate at which the monitored process is 
+            issuing read and write I/O operations.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.IOUsage">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the rate at which the monitored process is 
+            issuing bytes to I/O operations that do not involve data such as control operations.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.IPDataReceiveRate">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the IP based datagrams received / second of the system.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.IPDataSendRate">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the IP based datagrams sent / second of the system.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.MemoryUsage">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the memory utilization of the monitored process.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.Name">
+      <summary>
+            Gets the friendly name of the <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" /> object.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.ProcessName">
+      <summary>
+            Gets or sets the name of the <see cref="T:System.Diagnostics.Process" /> to be monitored.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitor.SampleCustomCounters">
+      <summary>
+            Handle sampling of custom counters.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.ThreadCount">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the number of threads currently active in the 
+            monitored process.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitor.ThreadingContentionRate">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the .NET threading contention rate / second of the process.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="F:Gemstone.Diagnostics.PerformanceMonitor.ThreadPoolCountersCategoryName">
+      <summary>
+            Name of the custom thread pool counters category.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Diagnostics.PerformanceMonitorBase">
+      <summary>
+            Represents a base class for performance monitors, e.g., the process level <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" />
+            and the system level <see cref="T:Gemstone.Diagnostics.SystemPerformanceMonitor" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.#ctor(System.Double)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.PerformanceMonitorBase" /> class.
+            </summary>
+      <param name="samplingInterval">Interval, in milliseconds, at which the <see cref="P:Gemstone.Diagnostics.PerformanceMonitorBase.Counters" /> are to be sampled.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.AddCounter(Gemstone.Diagnostics.PerformanceCounter)">
+      <summary>
+            Adds a <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be monitored.
+            </summary>
+      <param name="counter">The <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object to be monitored.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.AddCounter(System.String,System.String,System.String)">
+      <summary>
+            Adds a <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be monitored.
+            </summary>
+      <param name="categoryName">The name of the performance counter category (performance object) with which this performance counter is associated.</param>
+      <param name="counterName">The name of the performance counter.</param>
+      <param name="instanceName">The name of the performance counter category instance, or an empty string (""), if the category contains a single instance.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.AddCounter(System.String,System.String,System.String,System.String)">
+      <summary>
+            Adds a <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be monitored.
+            </summary>
+      <param name="categoryName">The name of the performance counter category (performance object) with which this performance counter is associated.</param>
+      <param name="counterName">The name of the performance counter.</param>
+      <param name="instanceName">The name of the performance counter category instance, or an empty string (""), if the category contains a single instance.</param>
+      <param name="aliasName">The alias name for the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.AddCounter(System.String,System.String,System.String,System.String,System.String)">
+      <summary>
+            Adds a <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be monitored.
+            </summary>
+      <param name="categoryName">The name of the performance counter category (performance object) with which this performance counter is associated.</param>
+      <param name="counterName">The name of the performance counter.</param>
+      <param name="instanceName">The name of the performance counter category instance, or an empty string (""), if the category contains a single instance.</param>
+      <param name="aliasName">The alias name for the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+      <param name="valueUnit">The measurement unit for the statistical values of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.AddCounter(System.String,System.String,System.String,System.String,System.String,System.Single,System.Boolean,System.Func{System.Single,System.Single},System.Func{System.Single,System.Boolean})">
+      <summary>
+            Adds a <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be monitored.
+            </summary>
+      <param name="categoryName">The name of the performance counter category (performance object) with which this performance counter is associated.</param>
+      <param name="counterName">The name of the performance counter.</param>
+      <param name="instanceName">The name of the performance counter category instance, or an empty string (""), if the category contains a single instance.</param>
+      <param name="aliasName">The alias name for the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+      <param name="valueUnit">The measurement unit for the statistical values of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+      <param name="valueDivisor">The divisor to be applied to the statistical values of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object.</param>
+      <param name="readOnly">Flag that determines if this counter is read-only.</param>
+      <param name="sampleAdjuster">Defines a custom sample adjustment function for the counter.</param>
+      <param name="sampleFilter">Defines a custom sample filter function for the counter.</param>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitorBase.Counters">
+      <summary>
+            Gets a read-only list of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> objects monitored by the <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" /> object.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.PerformanceMonitorBase.DefaultSamplingInterval">
+      <summary>
+            Default interval for sampling the <see cref="P:Gemstone.Diagnostics.PerformanceMonitorBase.Counters" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.Dispose">
+      <summary>
+            Releases all the resources used by the <see cref="T:Gemstone.Diagnostics.PerformanceMonitorBase" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.Dispose(System.Boolean)">
+      <summary>
+            Releases the unmanaged resources used by the <see cref="T:Gemstone.Diagnostics.PerformanceMonitorBase" /> object and optionally releases the managed resources.
+            </summary>
+      <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.Finalize">
+      <summary>
+            Releases the unmanaged resources before the <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" /> object is reclaimed by <see cref="T:System.GC" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.FindCounter(System.String)">
+      <summary>
+            Returns a <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object matching the specified counter name.
+            </summary>
+      <param name="counterName">Name of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be retrieved.</param>
+      <returns>A <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object if a match is found; otherwise null.</returns>
+      <remarks>
+            First <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> with matching name is returned. If same name exists within
+            multiple monitored categories, use <see cref="M:Gemstone.Diagnostics.PerformanceMonitorBase.FindCounter(System.String,System.String)" /> overload instead.
+            </remarks>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.FindCounter(System.String,System.String)">
+      <summary>
+            Returns a <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object matching the specified counter name.
+            </summary>
+      <param name="categoryName">Category of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be retrieved.</param>
+      <param name="counterName">Name of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be retrieved.</param>
+      <returns>A <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object if a match is found; otherwise null.</returns>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.FindCounters(System.String)">
+      <summary>
+            Returns <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> array matching the specified counter name.
+            </summary>
+      <param name="counterName">Name of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be retrieved.</param>
+      <returns>A <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> array of found matches, if any.</returns>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.FindCounters(System.String,System.String)">
+      <summary>
+            Returns <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> array matching the specified counter name.
+            </summary>
+      <param name="categoryName">Category of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be retrieved.</param>
+      <param name="counterName">Name of the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> to be retrieved.</param>
+      <returns>A <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> array of found matches, if any.</returns>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitorBase.LifetimeStatus">
+      <summary>
+            Gets the lifetime status statistics of the <see cref="T:Gemstone.Diagnostics.PerformanceMonitor" /> object.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitorBase.Name">
+      <summary>
+            Gets the friendly name of the <see cref="T:Gemstone.Diagnostics.PerformanceMonitorBase" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.RemoveCounter(Gemstone.Diagnostics.PerformanceCounter)">
+      <summary>
+            Removes a <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> being monitored.
+            </summary>
+      <param name="counter">The <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> object to be unmonitored.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.SampleCounters">
+      <summary>
+            Sample all defined counters.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.PerformanceMonitorBase.SampleCustomCounters">
+      <summary>
+            Derived class should override this method to sample any custom counters.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitorBase.SamplingInterval">
+      <summary>
+            Gets or sets the interval, in milliseconds, at which the <see cref="P:Gemstone.Diagnostics.PerformanceMonitorBase.Counters" /> are to be sampled.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.PerformanceMonitorBase.Status">
+      <summary>
+            Gets the current status of the <see cref="T:Gemstone.Diagnostics.PerformanceMonitorBase" /> object.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Diagnostics.ProcessUtilizationCalculator">
+      <summary>
+            Represents a utilization calculator for a related <see cref="T:System.Diagnostics.Process" /> set.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.ProcessUtilizationCalculator.#ctor">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Diagnostics.ProcessUtilizationCalculator" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.ProcessUtilizationCalculator.AssociatedProcesses">
+      <summary>
+            Gets associated processes for this <see cref="T:Gemstone.Diagnostics.ProcessUtilizationCalculator" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.ProcessUtilizationCalculator.DefaultUpdateInterval">
+      <summary>
+            Default value for the <see cref="P:Gemstone.Diagnostics.ProcessUtilizationCalculator.UpdateInterval" /> property.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.ProcessUtilizationCalculator.Dispose">
+      <summary>
+            Releases all the resources used by the <see cref="T:Gemstone.Diagnostics.ProcessUtilizationCalculator" /> object.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.ProcessUtilizationCalculator.Initialize(System.Collections.Generic.IEnumerable{System.Diagnostics.Process})">
+      <summary>
+            Starts calculating the total processor utilization of the specified <paramref name="processes" />.
+            </summary>
+      <param name="processes">The <see cref="T:System.Diagnostics.Process" /> set, e.g., parent and child processes, to monitor for total processor utilization.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.ProcessUtilizationCalculator.Initialize(System.Diagnostics.Process[])">
+      <summary>
+            Starts calculating the total processor utilization of the specified <paramref name="processes" />.
+            </summary>
+      <param name="processes">The <see cref="T:System.Diagnostics.Process" /> set, e.g., parent and child processes, to monitor for total processor utilization.</param>
+    </member>
+    <member name="M:Gemstone.Diagnostics.ProcessUtilizationCalculator.Refresh">
+      <summary>
+            Refreshes the processor utilization of the associated <see cref="T:System.Diagnostics.Process" /> set.
+            </summary>
+    </member>
+    <member name="E:Gemstone.Diagnostics.ProcessUtilizationCalculator.StatusMessage">
+      <summary>
+            Provides status messages to consumer.
+            </summary>
+      <remarks>
+        <see cref="F:Gemstone.EventArgs`1.Argument" /> is new status message.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.ProcessUtilizationCalculator.UpdateInterval">
+      <summary>
+            Gets or sets the interval, in milliseconds, over which <see cref="P:Gemstone.Diagnostics.ProcessUtilizationCalculator.Utilization" /> will be calculated.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.ProcessUtilizationCalculator.Utilization">
+      <summary>
+            Gets the current processor utilization, percent between 0.0 and 1.0, of the associated <see cref="T:System.Diagnostics.Process" /> set.
+            </summary>
+    </member>
     <member name="T:Gemstone.Diagnostics.PublisherTypeDefinition">
       <summary>
             Contains all of the metadata associated with a <see cref="T:System.Type" /> that will 
@@ -1651,6 +2357,42 @@
     <member name="F:Gemstone.Diagnostics.ShutdownHandlerOrder.Last">
       <summary>
             This queue is processed last. Items such as flushing application logs should go here.
+            </summary>
+    </member>
+    <member name="T:Gemstone.Diagnostics.SystemPerformanceMonitor">
+      <summary>
+            Represents a system performance monitor for system level performance statistics, e.g.,
+            CPU utilization and available memory.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.SystemPerformanceMonitor.#ctor(System.Double)">
+      <summary>
+            Creates a new <see cref="T:Gemstone.Diagnostics.SystemPerformanceMonitor" />.
+            </summary>
+      <param name="samplingInterval">
+            Interval, in milliseconds, at which the <see cref="P:Gemstone.Diagnostics.PerformanceMonitorBase.Counters" />
+            are to be sampled.
+            </param>
+      <remarks>
+            It is recommended to use the <see cref="P:Gemstone.Diagnostics.SystemPerformanceMonitor.Default" /> instance of this class
+            instead of creating a new instance where applicable.
+            </remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.SystemPerformanceMonitor.AvailableMemory">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the remaining available memory of the system in GB.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.SystemPerformanceMonitor.CPUUsage">
+      <summary>
+            Gets the <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> that monitors the processor utilization of the system.
+            </summary>
+      <remarks>This <see cref="T:Gemstone.Diagnostics.PerformanceCounter" /> is added by default.</remarks>
+    </member>
+    <member name="P:Gemstone.Diagnostics.SystemPerformanceMonitor.Default">
+      <summary>
+            Gets default reference of <see cref="T:Gemstone.Diagnostics.SystemPerformanceMonitor" />.
             </summary>
     </member>
     <member name="T:Gemstone.Diagnostics.ThreadPoolTrace">

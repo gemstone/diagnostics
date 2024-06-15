@@ -2,7 +2,13 @@
             The <span class="selflink">Gemstone.Diagnostics</span> namespace organizes all Gemstone library functionality
             related to diagnostics. The root diagnostics namespace also includes common diagnostics classes,
             e.g., <a href="T_Gemstone_Diagnostics_LogPublisher.htm">LogPublisher</a>.
-            </div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Classes</h2><div id="IDACASection"><table id="classList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Diagnostics_DisposableLoggingClassBase.htm">DisposableLoggingClassBase</a></td><td>
+            </div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Classes</h2><div id="IDACASection"><table id="classList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Diagnostics_ChildProcessManager.htm">ChildProcessManager</a></td><td>
+            Represents a manager for automatically terminating child processes.
+            </td></tr><tr><td><a href="T_Gemstone_Diagnostics_DiagnosticsLogger.htm">DiagnosticsLogger</a></td><td>
+            A logger that writes messages to the <a href="T_Gemstone_Diagnostics_Logger.htm">Logger</a>.
+            </td></tr><tr><td><a href="T_Gemstone_Diagnostics_DiagnosticsLoggerProvider.htm">DiagnosticsLoggerProvider</a></td><td>
+            The provider for the <a href="T_Gemstone_Diagnostics_DiagnosticsLogger.htm">DiagnosticsLogger</a>.
+            </td></tr><tr><td><a href="T_Gemstone_Diagnostics_DisposableLoggingClassBase.htm">DisposableLoggingClassBase</a></td><td>
             A helper class that implements <a href="https://docs.microsoft.com/dotnet/api/system.idisposable" target="_blank" rel="noopener noreferrer">IDisposable</a> that will raise log messages
             when this class is not properly disposed of.
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_LogEventPublisher.htm">LogEventPublisher</a></td><td>
@@ -13,6 +19,8 @@
             A log subscriber that will log messages to a file.
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_Logger.htm">Logger</a></td><td>
             Manages the collection and reporting of logging information in a system.
+            </td></tr><tr><td><a href="T_Gemstone_Diagnostics_LoggerExtensions.htm">LoggerExtensions</a></td><td>
+            Defines extension methods related to logging.
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_LogMessage.htm">LogMessage</a></td><td>
             An individual log message.
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_LogPublisher.htm">LogPublisher</a></td><td>
@@ -25,21 +33,34 @@
             Provides stack trace data that can be serialized to a stream.
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_LogSubscriber.htm">LogSubscriber</a></td><td>
             Subscribes to log events.
+            </td></tr><tr><td><a href="T_Gemstone_Diagnostics_PerformanceCounter.htm">PerformanceCounter</a></td><td>
+             Represents an extension of the basic <a href="T_Gemstone_Diagnostics_PerformanceCounter.htm">PerformanceCounter</a> providing additional statistical logic.
+             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_PerformanceMonitor.htm">PerformanceMonitor</a></td><td>
+             Represents a process performance monitor that operates similar to the Windows Performance Monitor utility
+             that can be used to monitor system performance.
+             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_PerformanceMonitorBase.htm">PerformanceMonitorBase</a></td><td>
+            Represents a base class for performance monitors, e.g., the process level <a href="T_Gemstone_Diagnostics_PerformanceMonitor.htm">PerformanceMonitor</a>
+            and the system level <a href="T_Gemstone_Diagnostics_SystemPerformanceMonitor.htm">SystemPerformanceMonitor</a>.
+            </td></tr><tr><td><a href="T_Gemstone_Diagnostics_ProcessUtilizationCalculator.htm">ProcessUtilizationCalculator</a></td><td>
+            Represents a utilization calculator for a related <a href="https://docs.microsoft.com/dotnet/api/system.diagnostics.process" target="_blank" rel="noopener noreferrer">Process</a> set.
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_PublisherTypeDefinition.htm">PublisherTypeDefinition</a></td><td>
             Contains all of the metadata associated with a <a href="https://docs.microsoft.com/dotnet/api/system.type" target="_blank" rel="noopener noreferrer">Type</a> that will 
             be serialized to the disk.
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_ShutdownHandler.htm">ShutdownHandler</a></td><td>
             This class will monitor the state to the application and raise events when it detects that the application is about to shutdown.
+            </td></tr><tr><td><a href="T_Gemstone_Diagnostics_SystemPerformanceMonitor.htm">SystemPerformanceMonitor</a></td><td>
+            Represents a system performance monitor for system level performance statistics, e.g.,
+            CPU utilization and available memory.
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_ThreadPoolTrace.htm">ThreadPoolTrace</a></td><td>
             Executes a trace on the <a href="https://docs.microsoft.com/dotnet/api/system.threading.threadpool" target="_blank" rel="noopener noreferrer">ThreadPool</a> for all callbacks currently queued.
             This will not include work items that have a time delayed callback.
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_TimerTrace.htm">TimerTrace</a></td><td>
             Executes a trace on the <a href="https://docs.microsoft.com/dotnet/api/system.threading.timer" target="_blank" rel="noopener noreferrer">Timer</a> for all queued timers.
-            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Structures</h2><div id="IDPCASection"><table id="structureList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Diagnostics_MessageRate.htm">MessageRate</a></td><td>
+            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Structures</h2><div id="IDTCASection"><table id="structureList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Diagnostics_MessageRate.htm">MessageRate</a></td><td>
             Defines a message rate for the message suppression algorithm
-            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Delegates</h2><div id="IDRCASection"><table id="delegateList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Diagnostics_NewLogMessageEventHandler.htm">NewLogMessageEventHandler</a></td><td>
+            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Delegates</h2><div id="IDVCASection"><table id="delegateList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Diagnostics_NewLogMessageEventHandler.htm">NewLogMessageEventHandler</a></td><td>
             A log message delegate
-            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Enumerations</h2><div id="IDLCASection"><table id="enumerationList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Diagnostics_MessageClass.htm">MessageClass</a></td><td>
+            </td></tr></table></div><h2 class="quickLinkHeader"><span class="icon toggleSection" tabindex="0"><i class="fa fa-angle-down"></i></span>Enumerations</h2><div id="IDPCASection"><table id="enumerationList" class="table is-hoverable"><tr><td><a href="T_Gemstone_Diagnostics_MessageClass.htm">MessageClass</a></td><td>
             Gets the classification of the message. 
             </td></tr><tr><td><a href="T_Gemstone_Diagnostics_MessageFlags.htm">MessageFlags</a></td><td>
             Various flags that can be attributed to a <a href="T_Gemstone_Diagnostics_LogMessage.htm">LogMessage</a>. 
