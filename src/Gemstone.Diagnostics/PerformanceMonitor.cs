@@ -158,13 +158,17 @@ public class PerformanceMonitor : PerformanceMonitorBase
             AddCounter("Process", "Handle Count", m_processName, "Process Handle Count", "Total Handles", 1);
         #endif
             AddCounter("Process", "Thread Count", m_processName, "Process Thread Count", "System Threads", 1);
+
+            // TODO: .NET Core does not emit Windows performance counters - use EventCounters for .NET Core instead
+
+            /*
             AddCounter(".NET CLR LocksAndThreads", "# of current logical Threads", m_processName, "CLR Thread Count", "Managed Threads", 1, true, 
                 sample => sample > int.MaxValue ? uint.MaxValue - sample : sample);
 
         #if MONO
-                // Add Mono thread pool counters
-                AddCounter("Mono Threadpool", "# of Threads", m_processName, "Worker Threads", "Active in Pool", 1);
-                AddCounter("Mono Threadpool", "# of IO Threads", m_processName, "I/O Port Threads", "Active in Pool", 1);
+            // Add Mono thread pool counters
+            AddCounter("Mono Threadpool", "# of Threads", m_processName, "Worker Threads", "Active in Pool", 1);
+            AddCounter("Mono Threadpool", "# of IO Threads", m_processName, "I/O Port Threads", "Active in Pool", 1);
         #else
             if (PerformanceCounterCategory.Exists(ThreadPoolCountersCategoryName))
             {
@@ -187,10 +191,11 @@ public class PerformanceMonitor : PerformanceMonitorBase
             AddCounter(".NET CLR Exceptions", "# of Exceps Thrown", m_processName, "Exception Count", "Total Exceptions", 1);
 
         #if MONO
-                AddCounter(".NET CLR Exceptions", "# of Exceps Thrown/Sec", m_processName, "Exception Rate", "Exceptions / sec", 1);
+            AddCounter(".NET CLR Exceptions", "# of Exceps Thrown/Sec", m_processName, "Exception Rate", "Exceptions / sec", 1);
         #else
             AddCounter(".NET CLR Exceptions", "# of Exceps Thrown / sec", m_processName, "Exception Rate", "Exceptions / sec", 1);
         #endif
+            */
 
             // Add default networking counters
         #if MONO
