@@ -39,9 +39,9 @@ public sealed class ProcessUtilizationCalculator : IDisposable
     // Nested Types
     private class ProcessReference
     {
-        public WeakReference<Process> Reference { private get; set; }
+        public WeakReference<Process>? Reference { private get; init; }
 
-        public Process Process => Reference.TryGetTarget(out Process process) ? process : null;
+        public Process? Process => Reference?.TryGetTarget(out Process? process) ?? false ? process : null;
 
         public TimeSpan LastTotalProcessorTime;
         public DateTime LastCalculationTime;
@@ -62,7 +62,7 @@ public sealed class ProcessUtilizationCalculator : IDisposable
     /// <remarks>
     /// <see cref="EventArgs{T}.Argument"/> is new status message.
     /// </remarks>
-    public event EventHandler<EventArgs<string>> StatusMessage;
+    public event EventHandler<EventArgs<string>>? StatusMessage;
 
     // Fields
     private readonly Timer m_updateUtilizationTimer;
@@ -79,7 +79,7 @@ public sealed class ProcessUtilizationCalculator : IDisposable
     /// </summary>
     public ProcessUtilizationCalculator()
     {
-        m_processReferences = new List<ProcessReference>();
+        m_processReferences = [];
         m_updateInterval = DefaultUpdateInterval;
 
         m_updateUtilizationTimer = new Timer(m_updateInterval)
@@ -118,7 +118,11 @@ public sealed class ProcessUtilizationCalculator : IDisposable
     /// <summary>
     /// Gets associated processes for this <see cref="ProcessUtilizationCalculator"/>.
     /// </summary>
-    public Process[] AssociatedProcesses => m_processReferences.Select(reference => reference.Process).Where(process => process is not null).ToArray();
+    public Process[] AssociatedProcesses => m_processReferences
+        .Select(reference => reference.Process)
+        .Where(process => process is not null)
+        .Cast<Process>()
+        .ToArray();
 
     #endregion
 
@@ -148,23 +152,23 @@ public sealed class ProcessUtilizationCalculator : IDisposable
     /// Starts calculating the total processor utilization of the specified <paramref name="processes"/>.
     /// </summary>
     /// <param name="processes">The <see cref="Process"/> set, e.g., parent and child processes, to monitor for total processor utilization.</param>
-    public void Initialize(params Process[] processes)
+    public void Initialize(params Process?[] processes)
     {
-        Initialize((IEnumerable<Process>)processes);
+        Initialize((IEnumerable<Process?>)processes);
     }
 
     /// <summary>
     /// Starts calculating the total processor utilization of the specified <paramref name="processes"/>.
     /// </summary>
     /// <param name="processes">The <see cref="Process"/> set, e.g., parent and child processes, to monitor for total processor utilization.</param>
-    public void Initialize(IEnumerable<Process> processes)
+    public void Initialize(IEnumerable<Process?> processes)
     {
         m_processReferences.AddRange(processes
             .Where(process => process is not null)
             .Select(process => new ProcessReference
             {
-                Reference = new WeakReference<Process>(process),
-                LastTotalProcessorTime = process.TotalProcessorTime,
+                Reference = new WeakReference<Process>(process!),
+                LastTotalProcessorTime = process!.TotalProcessorTime,
                 LastCalculationTime = DateTime.UtcNow
             })
         );
@@ -187,13 +191,13 @@ public sealed class ProcessUtilizationCalculator : IDisposable
     /// </summary>
     public void Refresh()
     {
-        List<int> itemsToRemove = new();
+        List<int> itemsToRemove = [];
         double totalUtilization = 0.0D;
 
         for (int i = 0; i < m_processReferences.Count; i++)
         {
             ProcessReference reference = m_processReferences[i];
-            Process process = reference.Process;
+            Process? process = reference.Process;
 
             try
             {
@@ -233,7 +237,7 @@ public sealed class ProcessUtilizationCalculator : IDisposable
             m_processReferences.RemoveAt(index);
     }
 
-    private void UpdateUtilizationTimerElapsed(object sender, ElapsedEventArgs e)
+    private void UpdateUtilizationTimerElapsed(object? sender, ElapsedEventArgs e)
     {
         try
         {
