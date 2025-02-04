@@ -29,6 +29,7 @@ using System.Threading;
 using Gemstone.Configuration;
 using Gemstone.Diagnostics.Internal;
 using Gemstone.Diagnostics.Utilities;
+using Gemstone.Threading;
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace Gemstone.Diagnostics;
