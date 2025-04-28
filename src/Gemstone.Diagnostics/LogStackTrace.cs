@@ -60,7 +60,7 @@ public class LogStackTrace
     /// </summary>
     private LogStackTrace()
     {
-        m_frames = new List<LogStackFrame>();
+        m_frames = [];
         Frames = new ReadOnlyCollection<LogStackFrame>(m_frames);
     }
 
@@ -72,7 +72,7 @@ public class LogStackTrace
     /// <param name="maxStackFrames">the maximum number of frames in the stack trace.</param>
     public LogStackTrace(bool lookupFileInfo = true, int skipCount = 0, int maxStackFrames = int.MaxValue)
     {
-        m_frames = new List<LogStackFrame>();
+        m_frames = [];
         Frames = new ReadOnlyCollection<LogStackFrame>(m_frames);
 
         try

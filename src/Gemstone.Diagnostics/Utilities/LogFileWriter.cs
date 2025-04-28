@@ -23,6 +23,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using Gemstone.Diagnostics.Internal;
 using Gemstone.Diagnostics.Internal.Ionic.Zlib;
 using Gemstone.IO;
@@ -37,7 +38,7 @@ public sealed class LogFileWriter
     : IDisposable
 {
     private readonly MemoryStream m_tmpStream;
-    private readonly object m_syncRoot;
+    private readonly Lock m_syncRoot;
     /// <summary>
     /// The file name
     /// </summary>
@@ -70,7 +71,7 @@ public sealed class LogFileWriter
         m_tmpBuffer = new byte[40960];
         m_tmpStream = new MemoryStream();
         LogCount = 0;
-        m_syncRoot = new object();
+        m_syncRoot = new Lock();
     }
 
 

@@ -135,7 +135,8 @@ namespace Gemstone.Diagnostics.Internal.Ionic.Zlib
 
             static Config()
             {
-                Table = new Config[] {
+                Table =
+                [
                     new(0, 0, 0, 0, DeflateFlavor.Store),
                     new(4, 4, 8, 4, DeflateFlavor.Fast),
                     new(4, 5, 16, 8, DeflateFlavor.Fast),
@@ -146,8 +147,8 @@ namespace Gemstone.Diagnostics.Internal.Ionic.Zlib
                     new(8, 16, 128, 128, DeflateFlavor.Slow),
                     new(8, 32, 128, 256, DeflateFlavor.Slow),
                     new(32, 128, 258, 1024, DeflateFlavor.Slow),
-                    new(32, 258, 258, 4096, DeflateFlavor.Slow),
-                };
+                    new(32, 258, 258, 4096, DeflateFlavor.Slow)
+                ];
             }
 
             private static readonly Config[] Table;
@@ -156,8 +157,8 @@ namespace Gemstone.Diagnostics.Internal.Ionic.Zlib
 
         private CompressFunc? DeflateFunction;
 
-        private static readonly string[] _ErrorMessage = new string[]
-        {
+        private static readonly string[] _ErrorMessage =
+        [
             "need dictionary",
             "stream end",
             "",
@@ -168,7 +169,7 @@ namespace Gemstone.Diagnostics.Internal.Ionic.Zlib
             "buffer error",
             "incompatible version",
             ""
-        };
+        ];
 
         // preset dictionary flag in zlib header
         private static readonly int PRESET_DICT = 0x20;

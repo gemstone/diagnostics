@@ -69,15 +69,15 @@ internal class LogMessageSaveHelper
         {
             m_isSimple = false;
             m_ownerSaveLookup = new Dictionary<LogEventPublisherDetails, int>();
-            m_ownerLoadLookup = new List<LogEventPublisherDetails>();
+            m_ownerLoadLookup = [];
             m_stackMessagesSaveLookup = new Dictionary<LogStackMessages, int>();
-            m_stackMessagesLoadLookup = new List<LogStackMessages>();
+            m_stackMessagesLoadLookup = [];
             m_stackTraceSaveLookup = new Dictionary<LogStackTrace, int>();
-            m_stackTraceLoadLookup = new List<LogStackTrace>();
+            m_stackTraceLoadLookup = [];
             m_publisherTypeDefinitionSaveLookup = new Dictionary<PublisherTypeDefinition, int>();
-            m_publisherTypeDefinitionLoadLookup = new List<PublisherTypeDefinition>();
+            m_publisherTypeDefinitionLoadLookup = [];
             m_stringSaveLookup = new Dictionary<string, int>();
-            m_stringLoadLookup = new List<string>();
+            m_stringLoadLookup = [];
         }
     }
 

@@ -38,6 +38,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Gemstone.Diagnostics;
 
@@ -99,7 +100,7 @@ public class PerformanceCounter : IDisposable
     private float m_valueDivisor;
     private int m_samplingWindow;
     private readonly System.Diagnostics.PerformanceCounter m_counter;
-    private readonly object m_samplesLock;
+    private readonly Lock m_samplesLock;
     private readonly List<float> m_samples;
     private float m_lifetimeMaximum;
     private decimal m_lifetimeTotal;
@@ -163,8 +164,8 @@ public class PerformanceCounter : IDisposable
         ValueDivisor = valueDivisor;
 
         m_samplingWindow = DefaultSamplingWindow;
-        m_samplesLock = new object();
-        m_samples = new List<float>();
+        m_samplesLock = new Lock();
+        m_samples = [];
         m_counter = new System.Diagnostics.PerformanceCounter(categoryName, counterName, instanceName);
 
         if (!readOnly)
@@ -191,7 +192,7 @@ public class PerformanceCounter : IDisposable
         m_samplingWindow = initialCounter.m_samplingWindow;
         m_counter = initialCounter.m_counter;
 
-        m_samplesLock = new object();
+        m_samplesLock = new Lock();
         m_samples = new List<float>(Enumerable.Repeat(0.0F, sources.Max(c => c.m_samples.Count)));
 
         for (int i = 0; i < m_samples.Count; i++)
@@ -292,7 +293,7 @@ public class PerformanceCounter : IDisposable
         get
         {
             lock (m_samplesLock)
-                return new List<float>(m_samples);
+                return [..m_samples];
         }
     }
 

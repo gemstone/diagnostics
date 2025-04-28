@@ -60,7 +60,7 @@ public abstract class PerformanceMonitorBase : IDisposable, IProvideStatus
     /// <param name="samplingInterval">Interval, in milliseconds, at which the <see cref="Counters"/> are to be sampled.</param>
     protected PerformanceMonitorBase(double samplingInterval = DefaultSamplingInterval)
     {
-        m_counters = new List<PerformanceCounter>();
+        m_counters = [];
         m_samplingTimer = new Timer(samplingInterval);
         m_samplingTimer.Elapsed += SamplingTimer_Elapsed;
         m_samplingTimer.Start();
@@ -421,7 +421,7 @@ public abstract class PerformanceMonitorBase : IDisposable, IProvideStatus
     /// <returns>A <see cref="PerformanceCounter"/> array of found matches, if any.</returns>
     public PerformanceCounter[] FindCounters(string counterName)
     {
-        List<PerformanceCounter> counters = new();
+        List<PerformanceCounter> counters = [];
 
         lock (m_counters)
         {
@@ -440,7 +440,7 @@ public abstract class PerformanceMonitorBase : IDisposable, IProvideStatus
     /// <returns>A <see cref="PerformanceCounter"/> array of found matches, if any.</returns>
     public PerformanceCounter[] FindCounters(string categoryName, string counterName)
     {
-        List<PerformanceCounter> counters = new();
+        List<PerformanceCounter> counters = [];
 
         lock (m_counters)
         {

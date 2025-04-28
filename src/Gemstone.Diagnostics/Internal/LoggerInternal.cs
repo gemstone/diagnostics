@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using Gemstone.Collections.CollectionExtensions;
 using Gemstone.Threading;
 
@@ -36,7 +37,7 @@ internal class LoggerInternal
     : IDisposable
 {
     private bool m_disposing;
-    private readonly object m_syncRoot;
+    private readonly Lock m_syncRoot;
     private readonly Dictionary<Type, LogPublisherInternal> m_typeIndexCache;
     private readonly List<LogPublisherInternal> m_allPublishers;
     private readonly List<NullableWeakReference> m_subscribers;
@@ -54,10 +55,10 @@ internal class LoggerInternal
         //This is because ScheduleTask will call Logger before Logger's static constructor is completed.
         loggerClass = this;
 
-        m_syncRoot = new object();
+        m_syncRoot = new Lock();
         m_typeIndexCache = new Dictionary<Type, LogPublisherInternal>();
-        m_allPublishers = new List<LogPublisherInternal>();
-        m_subscribers = new List<NullableWeakReference>();
+        m_allPublishers = [];
+        m_subscribers = [];
         m_messages = new ConcurrentQueue<Tuple<LogMessage, LogPublisherInternal>>();
 
         // Since ScheduledTask calls ShutdownHandler, which calls Logger. This initialization method cannot occur
@@ -204,7 +205,7 @@ internal class LoggerInternal
                 return publisher;
             
             m_allPublishers.Add(publisher);
-            List<LogSubscriberInternal> lst = new();
+            List<LogSubscriberInternal> lst = [];
             
             foreach (NullableWeakReference logSubscriberInternal in m_subscribers)
             {

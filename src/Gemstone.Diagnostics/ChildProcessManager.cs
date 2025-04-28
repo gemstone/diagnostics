@@ -134,7 +134,7 @@ public sealed class ChildProcessManager : IDisposable
         if (Common.IsPosixEnvironment)
         {
             // On non-Windows operating systems we just track associated processes
-            m_childProcesses = new List<WeakReference<Process>>();
+            m_childProcesses = [];
         }
         else
         {

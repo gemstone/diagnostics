@@ -41,7 +41,7 @@ public static class LogFileReader
     /// </summary>
     public static List<LogMessage> Read(string logFileName)
     {
-        List<LogMessage> lst = new();
+        List<LogMessage> lst = [];
         FilePath.ValidatePathName(logFileName);
         using FileStream stream = new(logFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 

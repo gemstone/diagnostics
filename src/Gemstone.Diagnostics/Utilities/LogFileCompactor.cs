@@ -147,7 +147,7 @@ public static class LogFileCompactor
         {
             m_index = 0;
             Owner = owner;
-            AllMessages = new List<MessageData>();
+            AllMessages = [];
         }
 
         public void Pass1(LogMessage message)

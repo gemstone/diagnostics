@@ -359,7 +359,7 @@ namespace Gemstone.Diagnostics.Internal.Ionic.Zlib
 
         private string ReadZeroTerminatedString()
         {
-            List<byte> list = new();
+            List<byte> list = [];
             bool done = false;
             do
             {

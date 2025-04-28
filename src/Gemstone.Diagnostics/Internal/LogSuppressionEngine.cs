@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System;
+using System.Threading;
 using Gemstone.Threading;
 
 namespace Gemstone.Diagnostics.Internal;
@@ -31,7 +32,7 @@ namespace Gemstone.Diagnostics.Internal;
 /// </summary>
 internal class LogSuppressionEngine
 {
-    private readonly object m_syncRoot;
+    private readonly Lock m_syncRoot;
     private readonly RateLimiter m_normal;
     private readonly RateLimiter m_low;
     private readonly RateLimiter m_med;
@@ -46,7 +47,7 @@ internal class LogSuppressionEngine
     /// <param name="burstLimit">The maximum number of messages that can be burst at one time.</param>
     public LogSuppressionEngine(double messagesPerSecond, int burstLimit)
     {
-        m_syncRoot = new object();
+        m_syncRoot = new Lock();
         m_normal = new RateLimiter();
         m_low = new RateLimiter();
         m_med = new RateLimiter();

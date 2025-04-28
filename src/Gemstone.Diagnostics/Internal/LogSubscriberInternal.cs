@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 // ReSharper disable InconsistentlySynchronizedField
 
@@ -58,7 +59,7 @@ internal class LogSubscriberInternal
 
     private readonly Action? m_recalculateRoutingTable;
 
-    private readonly object m_syncRoot;
+    private readonly Lock m_syncRoot;
 
     private bool m_disposed;
 
@@ -76,7 +77,7 @@ internal class LogSubscriberInternal
     {
         Reference = new NullableWeakReference(this);
         m_recalculateRoutingTable = recalculateRoutingTable;
-        m_syncRoot = new object();
+        m_syncRoot = new Lock();
         m_allSubscriptions = null;
     }
 
@@ -120,7 +121,7 @@ internal class LogSubscriberInternal
                 if (attributeFilter is null)
                     return;
 
-                m_allSubscriptions = new List<SubscriptionInfo> { new(publisherFilter, attributeFilter, isIgnoreSubscription) };
+                m_allSubscriptions = [new(publisherFilter, attributeFilter, isIgnoreSubscription)];
             }
             else
             {
@@ -176,7 +177,7 @@ internal class LogSubscriberInternal
     {
         lock (m_syncRoot)
         {
-            m_allSubscriptions ??= new List<SubscriptionInfo>();
+            m_allSubscriptions ??= [];
 
             MessageAttributeFilter filter = new();
 

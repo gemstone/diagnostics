@@ -59,7 +59,7 @@ public static class Logger
     private class ThreadStack
     {
         public int PreviousFirstChanceExceptionSequenceNumber;
-        private readonly List<LogStackMessages> m_threadStackDetails = new();
+        private readonly List<LogStackMessages> m_threadStackDetails = [];
         private LogStackMessages? m_stackMessageCache;
 
         public LogStackMessages GetStackMessages()
@@ -112,7 +112,7 @@ public static class Logger
     private static readonly LogEventPublisher EventAppDomainException;
     private static readonly LogEventPublisher EventSwallowedException;
     private static StackDisposal[]? s_stackDisposalStackMessages;
-    private static readonly object SyncRoot = LogSuppression.SyncRoot;
+    private static readonly Lock SyncRoot = LogSuppression.SyncRoot;
 
     static Logger()
     {

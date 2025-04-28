@@ -41,7 +41,7 @@ internal abstract class ImmutableObjectAutoBase<T>
 
     static ImmutableObjectAutoBase()
     {
-        s_readonlyFields = new List<FieldInfo>();
+        s_readonlyFields = [];
         Type newType = typeof(IImmutableObject);
         foreach (FieldInfo field in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic ))
         {

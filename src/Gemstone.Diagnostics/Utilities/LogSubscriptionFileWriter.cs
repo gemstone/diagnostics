@@ -25,6 +25,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using Gemstone.IO;
 using Gemstone.Threading;
 
@@ -43,7 +44,7 @@ public sealed class LogSubscriptionFileWriter
     /// </summary>
     public event Action<string>? NewFileComplete;
 
-    private readonly object m_syncRoot;
+    private readonly Lock m_syncRoot;
     private readonly ConcurrentQueue<LogMessage> m_messageQueue;
     private readonly LogSubscriber m_subscriber;
     private readonly int m_maxQueue;
@@ -66,7 +67,7 @@ public sealed class LogSubscriptionFileWriter
     {
         m_processName = Process.GetCurrentProcess().ProcessName;
         m_fileSequenceNumber = 1;
-        m_syncRoot = new object();
+        m_syncRoot = new Lock();
         m_maxQueue = messageLimit;
         m_messageQueue = new ConcurrentQueue<LogMessage>();
 

@@ -78,7 +78,7 @@ public sealed class PublisherTypeDefinition
         TypeName = TrimAfterFullName(type.AssemblyQualifiedName);
         AssemblyName = Path.GetFileName(type.Assembly.Location);
         AssemblyVersion = type.Assembly.GetName().Version!.ToString();
-        RelatedTypes = new ImmutableList<string>();
+        RelatedTypes = [];
 
         foreach (Type interfaceType in type.GetInterfaces())
             RelatedTypes.Add(TrimAfterFullName(interfaceType.AssemblyQualifiedName));

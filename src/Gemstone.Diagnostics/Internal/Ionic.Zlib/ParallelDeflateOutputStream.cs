@@ -476,7 +476,7 @@ namespace Gemstone.Diagnostics.Internal.Ionic.Zlib
         {
             _toWrite = new Queue<int>();
             _toFill = new Queue<int>();
-            _pool = new List<WorkItem>();
+            _pool = [];
             int nTasks = BufferPairsPerCore * Environment.ProcessorCount;
             nTasks = Math.Min(nTasks, _maxBufferPairs);
             for(int i=0; i < nTasks; i++)

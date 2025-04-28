@@ -36,7 +36,7 @@ internal class MessageAttributeFilterCollection
     /// <summary>
     /// All of the routes that made up this filter collection
     /// </summary>
-    public List<Tuple<MessageAttributeFilter, NullableWeakReference>> Routes = new();
+    public List<Tuple<MessageAttributeFilter, NullableWeakReference>> Routes = [];
 
     public void Add(MessageAttributeFilter filter, LogSubscriberInternal subscriber)
     {
