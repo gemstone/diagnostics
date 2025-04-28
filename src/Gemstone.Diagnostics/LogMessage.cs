@@ -26,7 +26,6 @@ using System.Data;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using Gemstone.Diagnostics.Internal;
 using Gemstone.Diagnostics.Internal.Immutable;
 using Gemstone.IO.StreamExtensions;
@@ -148,7 +147,7 @@ public sealed class LogMessage
     public readonly int ManagedThreadID;
 
     /// <summary>
-    /// A sequence number maintained by each thread thread of the previous 
+    /// A sequence number maintained by each thread of the previous 
     /// first chance exception that was thrown. This is used to assist
     /// LogFileViewer associate log messages with properly handled 
     /// first chance exceptions.
@@ -250,7 +249,7 @@ public sealed class LogMessage
         Message = message ?? string.Empty;
         Details = details ?? string.Empty;
         Exception = exception;
-        ManagedThreadID = Thread.CurrentThread.ManagedThreadId;
+        ManagedThreadID = Environment.CurrentManagedThreadId;
         PreviousFirstChanceExceptionSequenceNumber = Logger.PreviousFirstChanceExceptionSequenceNumber;
     }
 
