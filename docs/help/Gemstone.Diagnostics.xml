@@ -707,7 +707,7 @@
     </member>
     <member name="F:Gemstone.Diagnostics.LogMessage.PreviousFirstChanceExceptionSequenceNumber">
       <summary>
-            A sequence number maintained by each thread thread of the previous 
+            A sequence number maintained by each thread of the previous 
             first chance exception that was thrown. This is used to assist
             LogFileViewer associate log messages with properly handled 
             first chance exceptions.
@@ -2292,71 +2292,6 @@
     <member name="F:Gemstone.Diagnostics.PublisherTypeDefinition.TypeName">
       <summary>
             The <see cref="T:System.Type" /> associated with <see cref="T:Gemstone.Diagnostics.LogPublisher" /> that generated the message.
-            </summary>
-    </member>
-    <member name="T:Gemstone.Diagnostics.ShutdownHandler">
-      <summary>
-            This class will monitor the state to the application and raise events when it detects that the application is about to shutdown.
-            </summary>
-    </member>
-    <member name="P:Gemstone.Diagnostics.ShutdownHandler.HasShutdown">
-      <summary>
-            Gets if this process has already shut down.
-            </summary>
-    </member>
-    <member name="M:Gemstone.Diagnostics.ShutdownHandler.Initialize">
-      <summary>
-            Initializes the shutdown handler. This is recommended to put in main loop of the program, but it is not critical.
-            </summary>
-    </member>
-    <member name="M:Gemstone.Diagnostics.ShutdownHandler.InitiateSafeShutdown">
-      <summary>
-            Requests that certain components initiate a safe shutdown.
-            </summary>
-      <remarks>
-            This method should only be called when the main thread exits. Calling this outside
-            of the application exiting could result in unpredictable behavior.
-            </remarks>
-    </member>
-    <member name="P:Gemstone.Diagnostics.ShutdownHandler.IsShuttingDown">
-      <summary>
-            Gets if this process is shutting down.
-            </summary>
-    </member>
-    <member name="M:Gemstone.Diagnostics.ShutdownHandler.TryRegisterCallback(System.Action,Gemstone.Diagnostics.ShutdownHandlerOrder)">
-      <summary>
-            Attempts Registers a callback that will be called
-            when the application is shutdown.
-            </summary>
-      <param name="callback">the callback when the shutdown occurs</param>
-      <param name="shutdownOrder">the order that the callback will occur.</param>
-      <returns>
-        <markup>
-          <include item="SMCMissingTag">
-            <parameter>returns</parameter>
-            <parameter>M:Gemstone.Diagnostics.ShutdownHandler.TryRegisterCallback(System.Action,Gemstone.Diagnostics.ShutdownHandlerOrder)</parameter>
-          </include>
-        </markup>
-      </returns>
-    </member>
-    <member name="T:Gemstone.Diagnostics.ShutdownHandlerOrder">
-      <summary>
-            The order in which the specified callback should occur when shutting down.
-            </summary>
-    </member>
-    <member name="F:Gemstone.Diagnostics.ShutdownHandlerOrder.First">
-      <summary>
-            This queue is processed first. Unless there is a compelling reason to execute first, select the Default one. 
-            </summary>
-    </member>
-    <member name="F:Gemstone.Diagnostics.ShutdownHandlerOrder.Default">
-      <summary>
-            This shutdown order occurs after First, but before Last. 
-            </summary>
-    </member>
-    <member name="F:Gemstone.Diagnostics.ShutdownHandlerOrder.Last">
-      <summary>
-            This queue is processed last. Items such as flushing application logs should go here.
             </summary>
     </member>
     <member name="T:Gemstone.Diagnostics.SystemPerformanceMonitor">
