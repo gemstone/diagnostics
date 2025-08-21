@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
@@ -33,16 +32,19 @@ namespace Gemstone.Diagnostics;
 /// <summary>
 /// Represents a manager for automatically terminating child processes.
 /// </summary>
-public sealed class ChildProcessManager : IDisposable
+public sealed partial class ChildProcessManager : IDisposable
 {
     #region [ Members ]
 
     // Nested Types
 
+    #region [ Library Import Types ]
+
     // ReSharper disable FieldCanBeMadeReadOnly.Local
     // ReSharper disable UnusedMember.Local
     // ReSharper disable InconsistentNaming
     // ReSharper disable MemberCanBePrivate.Local
+    // ReSharper disable IdentifierTypo
     [StructLayout(LayoutKind.Sequential)]
     private struct IO_COUNTERS
     {
@@ -93,10 +95,11 @@ public sealed class ChildProcessManager : IDisposable
     // ReSharper restore UnusedMember.Local
     // ReSharper restore InconsistentNaming
     // ReSharper restore MemberCanBePrivate.Local
+    // ReSharper restore IdentifierTypo
 
     private sealed class SafeJobHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        public SafeJobHandle(IntPtr handle) : base(true)
+        public SafeJobHandle(nint handle) : base(true)
         {
             SetHandle(handle);
         }
@@ -107,6 +110,8 @@ public sealed class ChildProcessManager : IDisposable
         }
     }
 
+    #endregion
+
     // Events
 
     /// <summary>
@@ -115,11 +120,14 @@ public sealed class ChildProcessManager : IDisposable
     /// <remarks>
     /// This is currently only raised on non-Windows operating systems.
     /// </remarks>
-    public event EventHandler<EventArgs<Exception>> TerminationException;
+    public event EventHandler<EventArgs<Exception>>? TerminationException;
 
     // Fields
-    private readonly List<WeakReference<Process>> m_childProcesses;
-    private SafeJobHandle m_jobHandle;
+
+    // On non-Windows operating systems we just track associated processes
+    private readonly List<WeakReference<Process>> m_childProcesses = [];
+
+    private SafeJobHandle? m_jobHandle;
     private bool m_disposed;
 
     #endregion
@@ -131,40 +139,35 @@ public sealed class ChildProcessManager : IDisposable
     /// </summary>
     public ChildProcessManager()
     {
-        if (Common.IsPosixEnvironment)
+        if (!OperatingSystem.IsWindows())
+            return;
+
+        // Let safe handle manage terminations on Windows
+        GC.SuppressFinalize(this);
+
+        // On Windows we add child processes to a job object such that when the job
+        // is terminated, so are the child processes. Since safe handle ensures proper
+        // closing of job handle, child processes will be terminated even if parent 
+        // process is abnormally terminated
+        m_jobHandle = new SafeJobHandle(CreateJobObject(nint.Zero, null!));
+
+        JOBOBJECT_BASIC_LIMIT_INFORMATION info = new()
         {
-            // On non-Windows operating systems we just track associated processes
-            m_childProcesses = [];
-        }
-        else
+            LimitFlags = 0x2000
+        };
+
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION extendedInfo = new()
         {
-            // Let safe handle manage terminations on Windows
-            GC.SuppressFinalize(this);
+            BasicLimitInformation = info
+        };
 
-            // On Windows we add child processes to a job object such that when the job
-            // is terminated, so are the child processes. Since safe handle ensures proper
-            // closing of job handle, child processes will be terminated even if parent 
-            // process is abnormally terminated
-            m_jobHandle = new SafeJobHandle(CreateJobObject(IntPtr.Zero, null));
+        int length = Marshal.SizeOf<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>();
+        nint extendedInfoPtr = Marshal.AllocHGlobal(length);
 
-            JOBOBJECT_BASIC_LIMIT_INFORMATION info = new()
-            {
-                LimitFlags = 0x2000
-            };
+        Marshal.StructureToPtr(extendedInfo, extendedInfoPtr, false);
 
-            JOBOBJECT_EXTENDED_LIMIT_INFORMATION extendedInfo = new()
-            {
-                BasicLimitInformation = info
-            };
-
-            int length = Marshal.SizeOf(typeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION));
-
-            IntPtr extendedInfoPtr = Marshal.AllocHGlobal(length);
-            Marshal.StructureToPtr(extendedInfo, extendedInfoPtr, false);
-
-            if (!SetInformationJobObject(m_jobHandle, JobObjectInfoType.ExtendedLimitInformation, extendedInfoPtr, (uint)length))
-                throw new InvalidOperationException($"Unable to set information for ChildProcessManager job. Error: {Marshal.GetLastWin32Error()}");
-        }
+        if (!SetInformationJobObject(m_jobHandle, JobObjectInfoType.ExtendedLimitInformation, extendedInfoPtr, (uint)length))
+            throw new InvalidOperationException($"Unable to set information for ChildProcessManager job. Error: {Marshal.GetLastWin32Error()}");
     }
 
     /// <summary>
@@ -189,11 +192,11 @@ public sealed class ChildProcessManager : IDisposable
 
         try
         {
-            if (Common.IsPosixEnvironment)
+            if (!OperatingSystem.IsWindows())
             {
                 foreach (WeakReference<Process> childProcessReference in m_childProcesses)
                 {
-                    if (!childProcessReference.TryGetTarget(out Process childProcess))
+                    if (!childProcessReference.TryGetTarget(out Process? childProcess))
                         continue;
 
                     try
@@ -235,8 +238,7 @@ public sealed class ChildProcessManager : IDisposable
     /// </remarks>
     public void AddProcess(Process process)
     {
-        if (m_disposed)
-            throw new ObjectDisposedException(nameof(ChildProcessManager));
+        ObjectDisposedException.ThrowIf(m_disposed, this);
 
         if (Common.IsPosixEnvironment)
         {
@@ -244,7 +246,7 @@ public sealed class ChildProcessManager : IDisposable
         }
         else
         {
-            if (!AssignProcessToJobObject(m_jobHandle, process.SafeHandle))
+            if (m_jobHandle is not null && !AssignProcessToJobObject(m_jobHandle, process.SafeHandle))
                 throw new InvalidOperationException($"Unable to add process to ChildProcessManager job. Error: {Marshal.GetLastWin32Error()}");
         }
     }
@@ -256,21 +258,20 @@ public sealed class ChildProcessManager : IDisposable
     // Static Methods
 
     // ReSharper disable InconsistentNaming
-    [DllImport("kernel32", CharSet = CharSet.Unicode)]
-    private static extern IntPtr CreateJobObject(IntPtr hObject, string lpName);
+    [LibraryImport("kernel32", StringMarshalling = StringMarshalling.Utf16)]
+    private static partial nint CreateJobObject(nint hObject, string lpName);
 
-    [DllImport("kernel32", SetLastError = true)]
+    [LibraryImport("kernel32", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool SetInformationJobObject(SafeJobHandle jobHandle, JobObjectInfoType infoType, IntPtr lpJobObjectInfo, uint cbJobObjectInfoLength);
+    private static partial bool SetInformationJobObject(SafeJobHandle jobHandle, JobObjectInfoType infoType, nint lpJobObjectInfo, uint cbJobObjectInfoLength);
 
-    [DllImport("kernel32", SetLastError = true)]
+    [LibraryImport("kernel32", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool AssignProcessToJobObject(SafeJobHandle jobHandle, SafeProcessHandle process);
+    private static partial bool AssignProcessToJobObject(SafeJobHandle jobHandle, SafeProcessHandle process);
 
-    [DllImport("kernel32")]
-    [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+    [LibraryImport("kernel32")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool CloseHandle(IntPtr hObject);
+    private static partial bool CloseHandle(nint hObject);
     // ReSharper restore InconsistentNaming
 
     #endregion
