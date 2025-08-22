@@ -258,18 +258,18 @@ public sealed partial class ChildProcessManager : IDisposable
     // Static Methods
 
     // ReSharper disable InconsistentNaming
-    [LibraryImport("kernel32", StringMarshalling = StringMarshalling.Utf16)]
-    private static partial nint CreateJobObject(nint hObject, string lpName);
+    [LibraryImport("kernel32.dll", EntryPoint = "CreateJobObjectW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    private static partial nint CreateJobObject(nint lpJobAttributes, string? lpName);
 
-    [LibraryImport("kernel32", SetLastError = true)]
+    [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool SetInformationJobObject(SafeJobHandle jobHandle, JobObjectInfoType infoType, nint lpJobObjectInfo, uint cbJobObjectInfoLength);
+    private static partial bool SetInformationJobObject(SafeJobHandle hJob, JobObjectInfoType infoClass, nint lpJobObjectInfo, uint cbJobObjectInfoLength);
 
-    [LibraryImport("kernel32", SetLastError = true)]
+    [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool AssignProcessToJobObject(SafeJobHandle jobHandle, SafeProcessHandle process);
+    private static partial bool AssignProcessToJobObject(SafeJobHandle hJob, SafeProcessHandle hProcess);
 
-    [LibraryImport("kernel32")]
+    [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool CloseHandle(nint hObject);
     // ReSharper restore InconsistentNaming
