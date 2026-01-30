@@ -158,6 +158,7 @@ public class PerformanceMonitor : PerformanceMonitorBase
             AddCounter("Process", "Handle Count", m_processName, "Process Handle Count", "Total Handles", 1);
         #endif
             AddCounter("Process", "Thread Count", m_processName, "Process Thread Count", "System Threads", 1);
+            AddCounter("Process", "Working Set", m_processName, "Process Memory Usage", "Megabytes", SI2.Mega);
 
             // TODO: .NET Core does not emit Windows performance counters - use EventCounters for .NET Core instead
 
@@ -198,7 +199,7 @@ public class PerformanceMonitor : PerformanceMonitorBase
             */
 
             // Add default networking counters
-        #if MONO
+#if MONO
                 PerformanceCounterCategory category = new PerformanceCounterCategory("Network Interface");
 
                 foreach (string instance in category.GetInstanceNames())
@@ -209,7 +210,7 @@ public class PerformanceMonitor : PerformanceMonitorBase
                     AddCounter("Network Interface", "Bytes Sent/sec", instance, string.Format("IP Outgoing ({0})", instance).TruncateRight(20), "Bytes / sec", 1);
                     AddCounter("Network Interface", "Bytes Received/sec", instance, string.Format("IP Incoming ({0})", instance).TruncateRight(20), "Bytes / sec", 1);
                 }
-        #else
+#else
             if (PerformanceCounterCategory.Exists("IPv4"))
             {
                 //                                            12345678901234567890
