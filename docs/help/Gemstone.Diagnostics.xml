@@ -1502,6 +1502,11 @@
             eventually make the system unstable or unusable.
             </summary>
     </member>
+    <member name="M:Gemstone.Diagnostics.LoggerExtensions.ToLogLevel(Gemstone.Diagnostics.MessageLevel)">
+      <summary>
+            Converts a <see cref="T:Gemstone.Diagnostics.MessageLevel" /> to a <see cref="T:Microsoft.Extensions.Logging.LogLevel" />.
+            </summary>
+    </member>
     <member name="T:Gemstone.Diagnostics.MessageLevelFlags">
       <summary>
             The level of importance of a message that is being raised. Increasing from Debug, Info, Warning, Error, Critical.
