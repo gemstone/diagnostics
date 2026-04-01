@@ -23,9 +23,10 @@
 
 using System;
 using System.IO;
-using Microsoft.Extensions.Logging;
+using System.Linq;
 using Gemstone.Configuration;
 using Gemstone.IO;
+using Microsoft.Extensions.Logging;
 
 namespace Gemstone.Diagnostics;
 
@@ -84,14 +85,16 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
     /// <summary>
     /// Gets the <see cref="LogPublisher"/> for the <see cref="DiagnosticsLogger"/>.
     /// </summary>
-    public LogPublisher LogPublisher { get; } = Logger.CreatePublisher(typeof(DiagnosticsLogger), MessageClass.Framework);
+    public LogPublisher LogPublisher { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DiagnosticsLogger"/> class.
     /// </summary>
-    public DiagnosticsLogger()
+    /// <param name="categoryName">The category of log messages captured by this instance of the <see cref="DiagnosticsLogger"/> class.</param>
+    public DiagnosticsLogger(string? categoryName = null)
     {
-        DefaultLogPublisher ??= LogPublisher;
+        Type loggerType = GetLoggerType(categoryName);
+        LogPublisher = Logger.CreatePublisher(loggerType, MessageClass.Framework);
     }
 
     /// <summary>
@@ -219,11 +222,6 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
     /// </summary>
     public static readonly string DefaultLogPath;
 
-    /// <summary>
-    /// Gets the default log publisher for the <see cref="DiagnosticsLogger"/>.
-    /// </summary>
-    public static LogPublisher? DefaultLogPublisher { get; private set; }
-
     static DiagnosticsLogger()
     {
         DefaultLogPath = $"{FilePath.GetAbsolutePath("")}{Path.DirectorySeparatorChar}Logs{Path.DirectorySeparatorChar}";
@@ -250,5 +248,28 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
         loggingSettings.CriticalBurstLimit = (DefaultBurstLimit, "Defines the maximum number of critical messages that can be logged in a burst.");
 
         loggingSettings.Verbosity = (DefaultLogVerbosity, "Defines the verbosity level for logging.");
+    }
+
+    private static Type GetLoggerType(string? categoryName)
+    {
+        if (categoryName is null)
+            return typeof(DiagnosticsLogger);
+
+        try
+        {
+            static Type? FindType(string typeName) => AppDomain.CurrentDomain
+                .GetAssemblies()
+                .Select(assembly => assembly.GetType(typeName))
+                .FirstOrDefault(type => type is not null);
+
+            return Type.GetType(categoryName)
+                ?? FindType(categoryName)
+                ?? typeof(DiagnosticsLogger);
+        }
+        catch (Exception ex)
+        {
+            Logger.SwallowException(ex);
+            return typeof(DiagnosticsLogger);
+        }
     }
 }
