@@ -34,7 +34,7 @@ public class DiagnosticsLoggerProvider : ILoggerProvider
     /// <inheritdoc />
     public ILogger CreateLogger(string categoryName)
     {
-        DiagnosticsLogger logger = new();
+        DiagnosticsLogger logger = new(categoryName);
             
         logger.Initialize();
 
