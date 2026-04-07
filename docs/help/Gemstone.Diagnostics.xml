@@ -55,10 +55,11 @@
             A logger that writes messages to the <see cref="T:Gemstone.Diagnostics.Logger" />.
             </summary>
     </member>
-    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.#ctor">
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.#ctor(System.String)">
       <summary>
             Initializes a new instance of the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" /> class.
             </summary>
+      <param name="categoryName">The category of log messages captured by this instance of the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" /> class.</param>
     </member>
     <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.BeginScope``1(``0)">
       <summary>
@@ -76,11 +77,6 @@
     <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultLogPath">
       <summary>
             Gets the default log path for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
-            </summary>
-    </member>
-    <member name="P:Gemstone.Diagnostics.DiagnosticsLogger.DefaultLogPublisher">
-      <summary>
-            Gets the default log publisher for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
             </summary>
     </member>
     <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultLogVerbosity">
