@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  PerformanceMonitor.cs - Gbtc
 //
-//  Copyright © 2012, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2012, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -42,9 +42,7 @@
 
 using System;
 using System.Diagnostics;
-#if !MONO
 using System.Threading;
-#endif
 using Gemstone.Units;
 
 namespace Gemstone.Diagnostics;
@@ -82,12 +80,10 @@ public class PerformanceMonitor : PerformanceMonitorBase
     #region [ Members ]
 
     // Constants
-#if !MONO
     /// <summary>
     /// Name of the custom thread pool counters category.
     /// </summary>
     public const string ThreadPoolCountersCategoryName = "GSF Thread Pool Counters";
-#endif
 
     // Fields
     private string m_processName;
@@ -104,18 +100,6 @@ public class PerformanceMonitor : PerformanceMonitorBase
     {
     }
 
-#if MONO
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PerformanceMonitor"/> class.
-    /// </summary>
-    /// <param name="samplingInterval">Interval, in milliseconds, at which the <see cref="PerformanceMonitorBase.Counters"/> are to be sampled.</param>
-    /// <param name="addDefaultCounters">Set to <c>true</c> to add default counters; otherwise <c>false</c>.</param>
-    // Process based performance counters on Mono are initialized via current process ID
-    public PerformanceMonitor(double samplingInterval, bool addDefaultCounters = true)
-        : this(Process.GetCurrentProcess().Id.ToString(), samplingInterval, addDefaultCounters)
-    {
-    }
-#else
     /// <summary>
     /// Initializes a new instance of the <see cref="PerformanceMonitor"/> class.
     /// </summary>
@@ -125,7 +109,6 @@ public class PerformanceMonitor : PerformanceMonitorBase
         : this(Process.GetCurrentProcess().ProcessName, samplingInterval, addDefaultCounters)
     {
     }
-#endif
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PerformanceMonitor"/> class.
@@ -152,11 +135,9 @@ public class PerformanceMonitor : PerformanceMonitorBase
         {
             // Add default process and .NET counters
             AddCounter("Process", "% Processor Time", m_processName, "Process CPU Usage", "Average % / CPU", Environment.ProcessorCount);
-        #if !MONO
             AddCounter("Process", "IO Data Bytes/sec", m_processName, "I/O Data Rate", "Kilobytes / sec", SI2.Kilo);
             AddCounter("Process", "IO Data Operations/sec", m_processName, "I/O Activity Rate", "Operations / sec", 1);
             AddCounter("Process", "Handle Count", m_processName, "Process Handle Count", "Total Handles", 1);
-        #endif
             AddCounter("Process", "Thread Count", m_processName, "Process Thread Count", "System Threads", 1);
             AddCounter("Process", "Working Set", m_processName, "Process Memory Usage", "Megabytes", SI2.Mega);
 
@@ -198,38 +179,32 @@ public class PerformanceMonitor : PerformanceMonitorBase
         #endif
             */
 
-            // Add default networking counters
-#if MONO
-                PerformanceCounterCategory category = new PerformanceCounterCategory("Network Interface");
-
-                foreach (string instance in category.GetInstanceNames())
+            // Add default networking counters. PerformanceCounterCategory is only supported on Windows; on other
+            // platforms its static members throw PlatformNotSupportedException, so guard with OperatingSystem.
+            // IsWindows() - this both prevents the runtime exception and satisfies the platform-compatibility
+            // analyzer (CA1416). (This previously branched on #if MONO to read Mono's "Network Interface"
+            // counters, but Mono is no longer used under .NET.)
+            if (OperatingSystem.IsWindows())
+            {
+                if (PerformanceCounterCategory.Exists("IPv4"))
                 {
-                    //  12345678901234567890
-                    // "IP Outgoing (eth0)"
-                    // "IP Incoming (eth0)"
-                    AddCounter("Network Interface", "Bytes Sent/sec", instance, string.Format("IP Outgoing ({0})", instance).TruncateRight(20), "Bytes / sec", 1);
-                    AddCounter("Network Interface", "Bytes Received/sec", instance, string.Format("IP Incoming ({0})", instance).TruncateRight(20), "Bytes / sec", 1);
+                    //                                            12345678901234567890
+                    AddCounter("IPv4", "Datagrams Sent/sec", "", "IPv4 Outgoing Rate", "Datagrams / sec", 1);
+                    //                                                12345678901234567890
+                    AddCounter("IPv4", "Datagrams Received/sec", "", "IPv4 Incoming Rate", "Datagrams / sec", 1);
                 }
-#else
-            if (PerformanceCounterCategory.Exists("IPv4"))
-            {
-                //                                            12345678901234567890
-                AddCounter("IPv4", "Datagrams Sent/sec", "", "IPv4 Outgoing Rate", "Datagrams / sec", 1);
-                //                                                12345678901234567890
-                AddCounter("IPv4", "Datagrams Received/sec", "", "IPv4 Incoming Rate", "Datagrams / sec", 1);
-            }
-            else if (PerformanceCounterCategory.Exists("IP"))
-            {
-                AddCounter("IP", "Datagrams Sent/sec", "", "IP Outgoing Rate", "Datagrams / sec", 1);
-                AddCounter("IP", "Datagrams Received/sec", "", "IP Incoming Rate", "Datagrams / sec", 1);
-            }
+                else if (PerformanceCounterCategory.Exists("IP"))
+                {
+                    AddCounter("IP", "Datagrams Sent/sec", "", "IP Outgoing Rate", "Datagrams / sec", 1);
+                    AddCounter("IP", "Datagrams Received/sec", "", "IP Incoming Rate", "Datagrams / sec", 1);
+                }
 
-            if (PerformanceCounterCategory.Exists("IPv6"))
-            {
-                AddCounter("IPv6", "Datagrams Sent/sec", "", "IPv6 Outgoing Rate", "Datagrams / sec", 1);
-                AddCounter("IPv6", "Datagrams Received/sec", "", "IPv6 Incoming Rate", "Datagrams / sec", 1);
+                if (PerformanceCounterCategory.Exists("IPv6"))
+                {
+                    AddCounter("IPv6", "Datagrams Sent/sec", "", "IPv6 Outgoing Rate", "Datagrams / sec", 1);
+                    AddCounter("IPv6", "Datagrams Received/sec", "", "IPv6 Incoming Rate", "Datagrams / sec", 1);
+                }
             }
-        #endif
         }
     }
 
@@ -253,11 +228,16 @@ public class PerformanceMonitor : PerformanceMonitorBase
         {
             m_processName = value;
 
-            foreach (PerformanceCounter counter in Counters)
+            // BaseCounter.InstanceName is a Windows-only performance counter property (CA1416); on other
+            // platforms no counters are registered, so there is nothing to update.
+            if (OperatingSystem.IsWindows())
             {
-                // Only update the InstanceName for counters that had it set.
-                if (!string.IsNullOrEmpty(counter.BaseCounter.InstanceName))
-                    counter.BaseCounter.InstanceName = m_processName;
+                foreach (PerformanceCounter counter in Counters)
+                {
+                    // Only update the InstanceName for counters that had it set.
+                    if (!string.IsNullOrEmpty(counter.BaseCounter.InstanceName))
+                        counter.BaseCounter.InstanceName = m_processName;
+                }
             }
         }
     }
@@ -278,11 +258,7 @@ public class PerformanceMonitor : PerformanceMonitorBase
         {
             try
             {
-            #if MONO
-                PerformanceCounter[] sources = FindCounters("Bytes Sent/sec");
-            #else
                 PerformanceCounter[] sources = FindCounters("Datagrams Sent/sec");
-            #endif
 
                 return sources is null || sources.Length == 0 ? null : new PerformanceCounter(sources);
             }
@@ -304,11 +280,7 @@ public class PerformanceMonitor : PerformanceMonitorBase
         {
             try
             {
-            #if MONO
-                PerformanceCounter[] sources = FindCounters("Bytes Received/sec");
-            #else
                 PerformanceCounter[] sources = FindCounters("Datagrams Received/sec");
-            #endif
 
                 return sources is null || sources.Length <= 0 ? null : new PerformanceCounter(sources);
             }
@@ -375,36 +347,42 @@ public class PerformanceMonitor : PerformanceMonitorBase
     protected override void SampleCustomCounters()
     {
 
-    #if !MONO
-        // Sample custom thread pool counters (these already exist in Mono)
-        PerformanceCounter workerThreadsCounter = FindCounter(ThreadPoolCountersCategoryName, "Worker Threads");
-        PerformanceCounter completionPortThreadsCounter = FindCounter(ThreadPoolCountersCategoryName, "Completion Port Threads");
-
-        if (workerThreadsCounter is not null && completionPortThreadsCounter is not null)
+        // Sample custom thread pool counters. These are Windows performance counters (PerformanceCounter.RawValue
+        // is Windows-only - CA1416), so this is a no-op on other platforms, where no counters were registered.
+        if (OperatingSystem.IsWindows())
         {
-            System.Diagnostics.PerformanceCounter workerThreads = workerThreadsCounter.BaseCounter;
-            System.Diagnostics.PerformanceCounter completionPortThreads = completionPortThreadsCounter.BaseCounter;
+            PerformanceCounter workerThreadsCounter = FindCounter(ThreadPoolCountersCategoryName, "Worker Threads");
+            PerformanceCounter completionPortThreadsCounter = FindCounter(ThreadPoolCountersCategoryName, "Completion Port Threads");
 
-            if (workerThreads is not null && completionPortThreads is not null)
+            if (workerThreadsCounter is not null && completionPortThreadsCounter is not null)
             {
-                ThreadPool.GetMaxThreads(out int maximumWorkerThreads, out int maximumCompletionPortThreads);
-                ThreadPool.GetAvailableThreads(out int availableWorkerThreads, out int availableCompletionPortThreads);
+                System.Diagnostics.PerformanceCounter workerThreads = workerThreadsCounter.BaseCounter;
+                System.Diagnostics.PerformanceCounter completionPortThreads = completionPortThreadsCounter.BaseCounter;
 
-                workerThreads.RawValue = maximumWorkerThreads - availableWorkerThreads;
-                completionPortThreads.RawValue = maximumCompletionPortThreads - availableCompletionPortThreads;
+                if (workerThreads is not null && completionPortThreads is not null)
+                {
+                    ThreadPool.GetMaxThreads(out int maximumWorkerThreads, out int maximumCompletionPortThreads);
+                    ThreadPool.GetAvailableThreads(out int availableWorkerThreads, out int availableCompletionPortThreads);
+
+                    workerThreads.RawValue = maximumWorkerThreads - availableWorkerThreads;
+                    completionPortThreads.RawValue = maximumCompletionPortThreads - availableCompletionPortThreads;
+                }
             }
         }
-    #endif
     }
 
     #endregion
 
     #region [ Static ]
 
-#if !MONO
     // Static Constructor
     static PerformanceMonitor()
     {
+        // The custom thread pool counter category is a Windows performance counter construct;
+        // PerformanceCounterCategory is Windows-only (CA1416), so creating it is a no-op elsewhere.
+        if (!OperatingSystem.IsWindows())
+            return;
+
         try
         {
             if (PerformanceCounterCategory.Exists(ThreadPoolCountersCategoryName))
@@ -445,7 +423,6 @@ public class PerformanceMonitor : PerformanceMonitorBase
             // Not failing if custom counters cannot be created
         }
     }
-#endif
 
     #endregion
 }
