@@ -40,26 +40,6 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
     /// </summary>
     public const string DefaultSettingsCategory = "Diagnostics";
 
-    /// <summary>
-    /// The default maximum number of log files for the <see cref="DiagnosticsLogger"/>.
-    /// </summary>
-    public const int DefaultMaxLogFiles = 300;
-
-    /// <summary>
-    /// The default expected message rate limit for the <see cref="DiagnosticsLogger"/>.
-    /// </summary>
-    public const int DefaultRateLimit = 100;
-
-    /// <summary>
-    /// The default burst limit for the <see cref="DiagnosticsLogger"/>.
-    /// </summary>
-    public const int DefaultBurstLimit = 5000;
-
-    /// <summary>
-    /// The default log verbosity for the <see cref="DiagnosticsLogger"/>.
-    /// </summary>
-    public const VerboseLevel DefaultLogVerbosity = VerboseLevel.Ultra;
-
     // An empty scope without any logic
     private sealed class EmptyScope : IDisposable
     {
@@ -76,11 +56,6 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
     private LogEventPublisher? m_logWarning;
     private LogEventPublisher? m_logError;
     private LogEventPublisher? m_logCritical;
-
-    /// <summary>
-    /// Gets or sets the settings category for the <see cref="DiagnosticsLogger"/>.
-    /// </summary>
-    public string SettingsCategory { get; init; } = DefaultSettingsCategory;
 
     /// <summary>
     /// Gets the <see cref="LogPublisher"/> for the <see cref="DiagnosticsLogger"/>.
@@ -100,15 +75,12 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
     /// <summary>
     /// Initializes the <see cref="DiagnosticsLogger"/>.
     /// </summary>
-    public void Initialize()
+    public void Initialize(DiagnosticsLoggerOptions? options = null)
     {
-        if (string.IsNullOrWhiteSpace(SettingsCategory))
-            throw new InvalidOperationException("Settings category has not been defined.");
-
-        dynamic loggingSettings = Settings.Instance[SettingsCategory];
+        options ??= DiagnosticsLoggerOptions.FromSettings();
 
         // Retrieve application log path as defined in the config file
-        string logPath = FilePath.GetAbsolutePath(loggingSettings.LogPath ?? DefaultLogPath);
+        string logPath = FilePath.GetAbsolutePath(options.LogPath);
 
         // Make sure log directory exists
         try
@@ -119,39 +91,39 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
         catch (Exception ex)
         {
             // Attempt to default back to common log file path
-            if (!Directory.Exists(DefaultLogPath))
+            if (!Directory.Exists(DiagnosticsLoggerOptions.DefaultLogPath))
             {
                 try
                 {
-                    Directory.CreateDirectory(DefaultLogPath);
+                    Directory.CreateDirectory(DiagnosticsLoggerOptions.DefaultLogPath);
                 }
                 catch (Exception ex2)
                 {
-                    Logger.SwallowException(ex2, $"Failed to create configured log path \"{logPath}\" or default log path \"{DefaultLogPath}\": {ex.Message}");
+                    Logger.SwallowException(ex2, $"Failed to create configured log path \"{logPath}\" or default log path \"{DiagnosticsLoggerOptions.DefaultLogPath}\": {ex.Message}");
                 }
             }
 
-            LogPublisher.Publish(MessageLevel.Critical, MessageFlags.UsageIssue, "Log Folder Creation", $"Failed to create logging directory \"{logPath}\" due to exception, defaulting to \"{DefaultLogPath}\": {ex.Message}");
-            logPath = DefaultLogPath;
+            LogPublisher.Publish(MessageLevel.Critical, MessageFlags.UsageIssue, "Log Folder Creation", $"Failed to create logging directory \"{logPath}\" due to exception, defaulting to \"{DiagnosticsLoggerOptions.DefaultLogPath}\": {ex.Message}");
+            logPath = DiagnosticsLoggerOptions.DefaultLogPath;
         }
 
         // Initialize log file writer
         try
         {
             Logger.FileWriter.SetPath(logPath);
-            Logger.FileWriter.SetLoggingFileCount(loggingSettings.MaxLogFiles ?? DefaultMaxLogFiles);
-            Logger.FileWriter.Verbose = loggingSettings.Verbosity ?? DefaultLogVerbosity;
+            Logger.FileWriter.SetLoggingFileCount(options.MaxLogFiles);
+            Logger.FileWriter.Verbose = options.LogVerbosity;
         }
         catch (Exception ex)
         {
             Logger.SwallowException(ex, $"Failed to initialize Logger.FileWriter: {ex.Message}");
         }
 
-        m_logDebug = LogPublisher.RegisterEvent(MessageLevel.Debug, MessageFlags.None, "Debug Event", 0, MessageRate.PerSecond(loggingSettings.DebugRate ?? DefaultRateLimit), loggingSettings.DebugBurstLimit ?? DefaultBurstLimit);
-        m_logInformation = LogPublisher.RegisterEvent(MessageLevel.Info, MessageFlags.None, "Information Event", 0, MessageRate.PerSecond(loggingSettings.InformationRate ?? DefaultRateLimit), loggingSettings.InformationBurstLimit ?? DefaultBurstLimit);
-        m_logWarning = LogPublisher.RegisterEvent(MessageLevel.Warning, MessageFlags.None, "Warning Event", 0, MessageRate.PerSecond(loggingSettings.WarningRate ?? DefaultRateLimit), loggingSettings.WarningBurstLimit ?? DefaultBurstLimit);
-        m_logError = LogPublisher.RegisterEvent(MessageLevel.Error, MessageFlags.None, "Error Event", 0, MessageRate.PerSecond(loggingSettings.ErrorRate ?? DefaultRateLimit), loggingSettings.ErrorBurstLimit ?? DefaultBurstLimit);
-        m_logCritical = LogPublisher.RegisterEvent(MessageLevel.Critical, MessageFlags.None, "Critical Event", 0, MessageRate.PerSecond(loggingSettings.CriticalRate ?? DefaultRateLimit), loggingSettings.CriticalBurstLimit ?? DefaultBurstLimit);
+        m_logDebug = LogPublisher.RegisterEvent(MessageLevel.Debug, MessageFlags.None, "Debug Event", 0, MessageRate.PerSecond(options.DebugRate), options.DebugBurstLimit);
+        m_logInformation = LogPublisher.RegisterEvent(MessageLevel.Info, MessageFlags.None, "Information Event", 0, MessageRate.PerSecond(options.InformationRate), options.InformationBurstLimit);
+        m_logWarning = LogPublisher.RegisterEvent(MessageLevel.Warning, MessageFlags.None, "Warning Event", 0, MessageRate.PerSecond(options.WarningRate), options.WarningBurstLimit);
+        m_logError = LogPublisher.RegisterEvent(MessageLevel.Error, MessageFlags.None, "Error Event", 0, MessageRate.PerSecond(options.ErrorRate), options.ErrorBurstLimit);
+        m_logCritical = LogPublisher.RegisterEvent(MessageLevel.Critical, MessageFlags.None, "Critical Event", 0, MessageRate.PerSecond(options.CriticalRate), options.CriticalBurstLimit);
 
         LogPublisher.InitialStackMessages = LogStackMessages.Empty;
     }
@@ -217,37 +189,27 @@ public sealed class DiagnosticsLogger : ILogger, IDefineSettings
         }
     }
 
-    /// <summary>
-    /// Gets the default log path for the <see cref="DiagnosticsLogger"/>.
-    /// </summary>
-    public static readonly string DefaultLogPath;
-
-    static DiagnosticsLogger()
-    {
-        DefaultLogPath = $"{FilePath.GetAbsolutePath("")}{Path.DirectorySeparatorChar}Logs{Path.DirectorySeparatorChar}";
-    }
-
     /// <inheritdoc cref="IDefineSettings.DefineSettings" />
     public static void DefineSettings(Settings settings, string settingsCategory = DefaultSettingsCategory)
     {
         dynamic loggingSettings = settings[settingsCategory];
 
-        loggingSettings.LogPath = (DefaultLogPath, "Defines the path used to archive log files.");
-        loggingSettings.MaxLogFiles = (DefaultMaxLogFiles, "Defines the maximum number of log files to keep in the archive.");
+        loggingSettings.LogPath = (DiagnosticsLoggerOptions.DefaultLogPath, "Defines the path used to archive log files.");
+        loggingSettings.MaxLogFiles = (DiagnosticsLoggerOptions.DefaultMaxLogFiles, "Defines the maximum number of log files to keep in the archive.");
 
-        loggingSettings.DebugRate = (DefaultRateLimit, "Defines the maximum expected rate at which debug messages are logged for rate limiting.");
-        loggingSettings.InformationRate = (DefaultRateLimit, "Defines the maximum expected rate at which information messages are logged for rate limiting.");
-        loggingSettings.WarningRate = (DefaultRateLimit, "Defines the maximum expected rate at which warning messages are logged for rate limiting.");
-        loggingSettings.ErrorRate = (DefaultRateLimit, "Defines the maximum expected rate at which error messages are logged for rate limiting.");
-        loggingSettings.CriticalRate = (DefaultRateLimit, "Defines the maximum expected rate at which critical messages are logged for rate limiting.");
+        loggingSettings.DebugRate = (DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which debug messages are logged for rate limiting.");
+        loggingSettings.InformationRate = (DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which information messages are logged for rate limiting.");
+        loggingSettings.WarningRate = (DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which warning messages are logged for rate limiting.");
+        loggingSettings.ErrorRate = (DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which error messages are logged for rate limiting.");
+        loggingSettings.CriticalRate = (DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which critical messages are logged for rate limiting.");
 
-        loggingSettings.DebugBurstLimit = (DefaultBurstLimit, "Defines the maximum number of debug messages that can be logged in a burst.");
-        loggingSettings.InformationBurstLimit = (DefaultBurstLimit, "Defines the maximum number of information messages that can be logged in a burst.");
-        loggingSettings.WarningBurstLimit = (DefaultBurstLimit, "Defines the maximum number of warning messages that can be logged in a burst.");
-        loggingSettings.ErrorBurstLimit = (DefaultBurstLimit, "Defines the maximum number of error messages that can be logged in a burst.");
-        loggingSettings.CriticalBurstLimit = (DefaultBurstLimit, "Defines the maximum number of critical messages that can be logged in a burst.");
+        loggingSettings.DebugBurstLimit = (DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of debug messages that can be logged in a burst.");
+        loggingSettings.InformationBurstLimit = (DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of information messages that can be logged in a burst.");
+        loggingSettings.WarningBurstLimit = (DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of warning messages that can be logged in a burst.");
+        loggingSettings.ErrorBurstLimit = (DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of error messages that can be logged in a burst.");
+        loggingSettings.CriticalBurstLimit = (DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of critical messages that can be logged in a burst.");
 
-        loggingSettings.Verbosity = (DefaultLogVerbosity, "Defines the verbosity level for logging.");
+        loggingSettings.Verbosity = (DiagnosticsLoggerOptions.DefaultLogVerbosity, "Defines the verbosity level for logging.");
     }
 
     private static Type GetLoggerType(string? categoryName)

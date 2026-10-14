@@ -139,16 +139,16 @@ public static class Logger
 
         if (logFirstChanceExceptions)
         {
-            int firstChanceExceptionRate = loggingSettings["FirstChanceExceptionRate", DiagnosticsLogger.DefaultRateLimit, "Defines the maximum expected rate at which first change exception messages are logged for rate limiting."];
-            int firstChanceExceptionBurstLimit = loggingSettings["FirstChanceExceptionBurstLimit", DiagnosticsLogger.DefaultBurstLimit, "Defines the maximum number of first chance exception messages that can be logged in a burst."];
+            int firstChanceExceptionRate = loggingSettings["FirstChanceExceptionRate", DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which first change exception messages are logged for rate limiting."];
+            int firstChanceExceptionBurstLimit = loggingSettings["FirstChanceExceptionBurstLimit", DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of first chance exception messages that can be logged in a burst."];
             
             EventFirstChanceException = Log.RegisterEvent(MessageLevel.Info, MessageFlags.None, "First Chance App Domain Exception", 30, MessageRate.PerSecond(firstChanceExceptionRate), firstChanceExceptionBurstLimit);
         }
 
         EventAppDomainException = Log.RegisterEvent(MessageLevel.Critical, MessageFlags.SystemHealth, "Unhandled App Domain Exception");
 
-        int swallowedExceptionRate = loggingSettings["SwallowedExceptionRate", DiagnosticsLogger.DefaultRateLimit, "Defines the maximum expected rate at which swallowed exception messages are logged for rate limiting."];
-        int swallowedExceptionBurstLimit = loggingSettings["SwallowedExceptionBurstLimit", DiagnosticsLogger.DefaultBurstLimit, "Defines the maximum number of swallowed exception messages that can be logged in a burst."];
+        int swallowedExceptionRate = loggingSettings["SwallowedExceptionRate", DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which swallowed exception messages are logged for rate limiting."];
+        int swallowedExceptionBurstLimit = loggingSettings["SwallowedExceptionBurstLimit", DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of swallowed exception messages that can be logged in a burst."];
         
         EventSwallowedException = Log.RegisterEvent(MessageLevel.Debug, MessageFlags.None, "Exception was Swallowed", 30, MessageRate.PerSecond(swallowedExceptionRate), swallowedExceptionBurstLimit);
 
