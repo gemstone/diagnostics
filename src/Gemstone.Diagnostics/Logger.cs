@@ -108,11 +108,84 @@ public static class Logger
     public static readonly LogSubscriptionFileWriter FileWriter;
 
     private static readonly LogPublisher Log;
-    private static readonly LogEventPublisher EventFirstChanceException = default!;
+    private static LogEventPublisher? EventFirstChanceException = default!;
     private static readonly LogEventPublisher EventAppDomainException;
-    private static readonly LogEventPublisher EventSwallowedException;
+    private static LogEventPublisher? EventSwallowedException;
     private static StackDisposal[]? s_stackDisposalStackMessages;
     private static readonly Lock SyncRoot = LogSuppression.SyncRoot;
+
+    private static bool? s_logFirstChanceExceptions;
+    private static int? s_firstChanceExceptionRate;
+    private static int? s_firstChanceExceptionBurstLimit;
+    private static int? s_swallowedExceptionRate;
+    private static int? s_swallowedExceptionBurstLimit;
+
+    /// <summary>
+    /// Gets or sets the flag that determines if first chance exceptions are logged.
+    /// </summary>
+    public static bool LogFirstChanceExceptions
+    {
+        get => s_logFirstChanceExceptions ?? true;
+        set
+        {
+            ThrowIfInitialized();
+            s_logFirstChanceExceptions = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum expected rate at which first change exception messages are logged for rate limiting.
+    /// </summary>
+    public static int FirstChanceExceptionRate
+    {
+        get => s_firstChanceExceptionRate ?? DiagnosticsLoggerOptions.DefaultRateLimit;
+        set
+        {
+            ThrowIfInitialized();
+            s_firstChanceExceptionRate = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum number of first chance exception messages that can be logged in a burst.
+    /// </summary>
+    public static int FirstChanceExceptionBurstLimit
+    {
+        get => s_firstChanceExceptionBurstLimit ?? DiagnosticsLoggerOptions.DefaultBurstLimit;
+        set
+        {
+            ThrowIfInitialized();
+            s_firstChanceExceptionBurstLimit = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum expected rate at which swallowed exception messages are logged for rate limiting.
+    /// </summary>
+    public static int SwallowedExceptionRate
+    {
+        get => s_swallowedExceptionRate ?? DiagnosticsLoggerOptions.DefaultRateLimit;
+        set
+        {
+            ThrowIfInitialized();
+            s_swallowedExceptionRate = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum number of swallowed exception messages that can be logged in a burst.
+    /// </summary>
+    public static int SwallowedExceptionBurstLimit
+    {
+        get => s_swallowedExceptionBurstLimit ?? DiagnosticsLoggerOptions.DefaultBurstLimit;
+        set
+        {
+            ThrowIfInitialized();
+            s_swallowedExceptionBurstLimit = value;
+        }
+    }
+
+    private static Lazy<object?> LazyInitializer { get; }
 
     static Logger()
     {
@@ -125,32 +198,25 @@ public static class Logger
         Console = new LogSubscriptionConsole();
         FileWriter = new LogSubscriptionFileWriter(1000);
 
-        dynamic loggingSettings = Settings.Instance[DiagnosticsLogger.DefaultSettingsCategory];
-
-        bool logFirstChanceExceptions = loggingSettings["LogFirstChanceExceptions", true, "Defines flag that determines if first chance exceptions are logged."];
-
-        if (logFirstChanceExceptions)
-            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
-
-        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
         Log = CreatePublisher(typeof(Logger), MessageClass.Component);
         Log.InitialStackTrace = LogStackTrace.Empty;
-
-        if (logFirstChanceExceptions)
-        {
-            int firstChanceExceptionRate = loggingSettings["FirstChanceExceptionRate", DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which first change exception messages are logged for rate limiting."];
-            int firstChanceExceptionBurstLimit = loggingSettings["FirstChanceExceptionBurstLimit", DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of first chance exception messages that can be logged in a burst."];
-            
-            EventFirstChanceException = Log.RegisterEvent(MessageLevel.Info, MessageFlags.None, "First Chance App Domain Exception", 30, MessageRate.PerSecond(firstChanceExceptionRate), firstChanceExceptionBurstLimit);
-        }
-
         EventAppDomainException = Log.RegisterEvent(MessageLevel.Critical, MessageFlags.SystemHealth, "Unhandled App Domain Exception");
 
-        int swallowedExceptionRate = loggingSettings["SwallowedExceptionRate", DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which swallowed exception messages are logged for rate limiting."];
-        int swallowedExceptionBurstLimit = loggingSettings["SwallowedExceptionBurstLimit", DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of swallowed exception messages that can be logged in a burst."];
-        
-        EventSwallowedException = Log.RegisterEvent(MessageLevel.Debug, MessageFlags.None, "Exception was Swallowed", 30, MessageRate.PerSecond(swallowedExceptionRate), swallowedExceptionBurstLimit);
+        LazyInitializer = new(() =>
+        {
+            if (Settings.Instance is not null)
+                LoadSettings();
+
+            if (LogFirstChanceExceptions)
+                EventFirstChanceException = Log.RegisterEvent(MessageLevel.Info, MessageFlags.None, "First Chance App Domain Exception", 30, MessageRate.PerSecond(FirstChanceExceptionRate), FirstChanceExceptionBurstLimit);
+
+            EventSwallowedException = Log.RegisterEvent(MessageLevel.Debug, MessageFlags.None, "Exception was Swallowed", 30, MessageRate.PerSecond(SwallowedExceptionRate), SwallowedExceptionBurstLimit);
+
+            return null;
+        });
+
+        AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceExceptionSetup;
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
         ShutdownHandler.Initialize();
     }
@@ -160,7 +226,7 @@ public static class Logger
     /// </summary>
     internal static void Initialize()
     {
-        //Handled in the static constructor.
+        _ = LazyInitializer.Value;
     }
 
     /// <summary>
@@ -198,6 +264,19 @@ public static class Logger
     /// </summary>
     public static bool ShouldSuppressFirstChanceLogMessages => LogSuppression.ShouldSuppressFirstChanceLogMessages;
 
+    private static void CurrentDomain_FirstChanceExceptionSetup(object? sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
+    {
+        AppDomain.CurrentDomain.FirstChanceException -= CurrentDomain_FirstChanceExceptionSetup;
+
+        Initialize();
+
+        if (LogFirstChanceExceptions)
+        {
+            AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
+            CurrentDomain_FirstChanceException(sender, e);
+        }
+    }
+
     private static void CurrentDomain_FirstChanceException(object? sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
     {
         if ((Thread.CurrentThread.ThreadState & (ThreadState.AbortRequested | ThreadState.Aborted)) != 0)
@@ -214,7 +293,7 @@ public static class Logger
         {
             try
             {
-                EventFirstChanceException.Publish(null, null, e.Exception);
+                EventFirstChanceException?.Publish(null, null, e.Exception);
             }
             catch (Exception)
             {
@@ -274,7 +353,9 @@ public static class Logger
     /// <param name="additionalFlags">additional flags that can be set with this swallowed exception.</param>
     public static void SwallowException(Exception ex, string? message = null, string? details = null, MessageFlags additionalFlags = MessageFlags.None)
     {
-        EventSwallowedException.Publish(additionalFlags, message, details, ex);
+        Initialize();
+
+        EventSwallowedException?.Publish(additionalFlags, message, details, ex);
         //Increment this value to ensure that nothing else matches with the exception since it has been removed.
         ThreadLocalThreadStack.Value.PreviousFirstChanceExceptionSequenceNumber++;
     }
@@ -362,5 +443,26 @@ public static class Logger
     private static void DisposeStackMessage(int depth)
     {
         ThreadLocalThreadStack.Value.RemoveStackMessage(depth);
+    }
+
+    private static void LoadSettings()
+    {
+        dynamic loggingSettings = Settings.Instance[DiagnosticsLogger.DefaultSettingsCategory];
+        s_logFirstChanceExceptions ??= loggingSettings["LogFirstChanceExceptions", true, "Defines flag that determines if first chance exceptions are logged."];
+
+        if (LogFirstChanceExceptions)
+        {
+            s_firstChanceExceptionRate ??= loggingSettings["FirstChanceExceptionRate", DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which first change exception messages are logged for rate limiting."];
+            s_firstChanceExceptionBurstLimit ??= loggingSettings["FirstChanceExceptionBurstLimit", DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of first chance exception messages that can be logged in a burst."];
+        }
+
+        s_swallowedExceptionRate ??= loggingSettings["SwallowedExceptionRate", DiagnosticsLoggerOptions.DefaultRateLimit, "Defines the maximum expected rate at which swallowed exception messages are logged for rate limiting."];
+        s_swallowedExceptionBurstLimit ??= loggingSettings["SwallowedExceptionBurstLimit", DiagnosticsLoggerOptions.DefaultBurstLimit, "Defines the maximum number of swallowed exception messages that can be logged in a burst."];
+    }
+
+    private static void ThrowIfInitialized()
+    {
+        if (LazyInitializer.IsValueCreated)
+            throw new InvalidOperationException("Cannot change logger properties after logger has been initialized");
     }
 }
