@@ -21,8 +21,10 @@
 //
 //******************************************************************************************************
 
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using System;
+using Gemstone.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Gemstone.Diagnostics;
@@ -74,6 +76,43 @@ public static class LoggerExtensions
     /// <param name="builder">The extension method argument.</param>
     public static ILoggingBuilder AddGemstoneDiagnostics(this ILoggingBuilder builder)
     {
+        return builder.AddGemstoneDiagnostics(Configure);
+
+        static void Configure(DiagnosticsLoggerOptions options)
+        {
+            if (Settings.Instance is null)
+                return;
+
+            string settingsCategory = DiagnosticsLogger.DefaultSettingsCategory;
+            dynamic loggingSettings = Settings.Instance[settingsCategory];
+
+            options.LogPath = loggingSettings.LogPath;
+            options.MaxLogFiles = loggingSettings.MaxLogFiles;
+
+            options.DebugRate = loggingSettings.DebugRate;
+            options.InformationRate = loggingSettings.InformationRate;
+            options.WarningRate = loggingSettings.WarningRate;
+            options.ErrorRate = loggingSettings.ErrorRate;
+            options.CriticalRate = loggingSettings.CriticalRate;
+
+            options.DebugBurstLimit = loggingSettings.DebugBurstLimit;
+            options.InformationBurstLimit = loggingSettings.InformationBurstLimit;
+            options.WarningBurstLimit = loggingSettings.WarningBurstLimit;
+            options.ErrorBurstLimit = loggingSettings.ErrorBurstLimit;
+            options.CriticalBurstLimit = loggingSettings.CriticalBurstLimit;
+
+            options.LogVerbosity = loggingSettings.Verbosity;
+        }
+    }
+
+    /// <summary>
+    /// Adds Gemstone <see cref="DiagnosticsLogger"/> to the factory.
+    /// </summary>
+    /// <param name="builder">The extension method argument.</param>
+    /// <param name="configureOptions">Action to configure logging options.</param>
+    public static ILoggingBuilder AddGemstoneDiagnostics(this ILoggingBuilder builder, Action<DiagnosticsLoggerOptions> configureOptions)
+    {
+        builder.Services.Configure(configureOptions);
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, DiagnosticsLoggerProvider>());
 
         return builder;
