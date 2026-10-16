@@ -21,7 +21,10 @@
 //
 //******************************************************************************************************
 
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gemstone.Diagnostics;
 
@@ -29,15 +32,20 @@ namespace Gemstone.Diagnostics;
 /// The provider for the <see cref="DiagnosticsLogger"/>.
 /// </summary>
 [ProviderAlias(DiagnosticsLogger.DefaultSettingsCategory)]
-public class DiagnosticsLoggerProvider : ILoggerProvider
+public class DiagnosticsLoggerProvider(IOptionsMonitor<DiagnosticsLoggerOptions> monitor, IEnumerable<IConfigureOptions<DiagnosticsLoggerOptions>> configurers) : ILoggerProvider
 {
+    private IOptionsMonitor<DiagnosticsLoggerOptions> Monitor { get; } = monitor;
+    private bool IsExplicitlyConfigured { get; } = configurers.Any();
+
+    private DiagnosticsLoggerOptions? Options => IsExplicitlyConfigured
+        ? Monitor.CurrentValue
+        : null;
+
     /// <inheritdoc />
     public ILogger CreateLogger(string categoryName)
     {
         DiagnosticsLogger logger = new(categoryName);
-            
-        logger.Initialize();
-
+        logger.Initialize(Options);
         return logger;
     }
 
