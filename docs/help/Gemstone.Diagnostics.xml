@@ -69,31 +69,6 @@
       <typeparam name="TState">The type of the state to begin scope for.</typeparam>
       <returns>An <see cref="T:System.IDisposable" /> that ends the logical operation scope on dispose.</returns>
     </member>
-    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultBurstLimit">
-      <summary>
-            The default burst limit for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
-            </summary>
-    </member>
-    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultLogPath">
-      <summary>
-            Gets the default log path for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
-            </summary>
-    </member>
-    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultLogVerbosity">
-      <summary>
-            The default log verbosity for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
-            </summary>
-    </member>
-    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultMaxLogFiles">
-      <summary>
-            The default maximum number of log files for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
-            </summary>
-    </member>
-    <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultRateLimit">
-      <summary>
-            The default expected message rate limit for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
-            </summary>
-    </member>
     <member name="F:Gemstone.Diagnostics.DiagnosticsLogger.DefaultSettingsCategory">
       <summary>
             The default settings category for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
@@ -106,10 +81,19 @@
       <param name="settings">Settings instance used to hold configuration.</param>
       <param name="settingsCategory">The config file settings category under which the settings are defined.</param>
     </member>
-    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.Initialize">
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.Initialize(Gemstone.Diagnostics.DiagnosticsLoggerOptions)">
       <summary>
             Initializes the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
             </summary>
+      <param name="options">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>options</parameter>
+            <parameter>M:Gemstone.Diagnostics.DiagnosticsLogger.Initialize(Gemstone.Diagnostics.DiagnosticsLoggerOptions)</parameter>
+          </include>
+        </markup>
+      </param>
     </member>
     <member name="M:Gemstone.Diagnostics.DiagnosticsLogger.IsEnabled(Microsoft.Extensions.Logging.LogLevel)">
       <summary>
@@ -135,9 +119,122 @@
             Gets the <see cref="P:Gemstone.Diagnostics.DiagnosticsLogger.LogPublisher" /> for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
             </summary>
     </member>
-    <member name="P:Gemstone.Diagnostics.DiagnosticsLogger.SettingsCategory">
+    <member name="T:Gemstone.Diagnostics.DiagnosticsLoggerOptions">
       <summary>
-            Gets or sets the settings category for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            Defines options for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLoggerOptions.#ctor">
+      <summary>
+        <markup>
+          <include item="SMCAutoDocConstructor">
+            <parameter>Gemstone.Diagnostics.DiagnosticsLoggerOptions</parameter>
+          </include>
+        </markup>
+      </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.CriticalBurstLimit">
+      <summary>
+            Gets or sets the maximum number of critical messages that can be logged in a burst.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.CriticalRate">
+      <summary>
+            Gets or sets the maximum expected rate at which critical messages are logged for rate limiting.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.DebugBurstLimit">
+      <summary>
+            Gets or sets the maximum number of debug messages that can be logged in a burst.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.DebugRate">
+      <summary>
+            Gets or sets the maximum expected rate at which debug messages are logged for rate limiting.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLoggerOptions.DefaultBurstLimit">
+      <summary>
+            The default burst limit for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLoggerOptions.DefaultLogPath">
+      <summary>
+            The default log path for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLoggerOptions.DefaultLogVerbosity">
+      <summary>
+            The default log verbosity for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLoggerOptions.DefaultMaxLogFiles">
+      <summary>
+            The default maximum number of log files for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="F:Gemstone.Diagnostics.DiagnosticsLoggerOptions.DefaultRateLimit">
+      <summary>
+            The default expected message rate limit for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.ErrorBurstLimit">
+      <summary>
+            Gets or sets the maximum number of error messages that can be logged in a burst.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.ErrorRate">
+      <summary>
+            Gets or sets the maximum expected rate at which error messages are logged for rate limiting.
+            </summary>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLoggerOptions.FromSettings(Gemstone.Configuration.SettingsSection)">
+      <summary>
+            Loads logging settings from the default <see cref="T:Gemstone.Configuration.Settings" /> instance.
+            </summary>
+      <param name="settingsSection">The section containing logging settings.</param>
+      <returns>Options used to initialize the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.</returns>
+    </member>
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLoggerOptions.FromSettings(System.String)">
+      <summary>
+            Loads logging settings from the default <see cref="T:Gemstone.Configuration.Settings" /> instance.
+            </summary>
+      <param name="settingsCategory">The category name that defines the section containing logging settings.</param>
+      <returns>Options used to initialize the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.</returns>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.InformationBurstLimit">
+      <summary>
+            Gets or sets the maximum number of information messages that can be logged in a burst.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.InformationRate">
+      <summary>
+            Gets or sets the maximum expected rate at which information messages are logged for rate limiting.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.LogPath">
+      <summary>
+            Gets or sets the path used to archive log files.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.LogVerbosity">
+      <summary>
+            Gets or sets the verbosity level for logging.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.MaxLogFiles">
+      <summary>
+            Gets or sets the maximum number of log files to keep in the archive.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.WarningBurstLimit">
+      <summary>
+            Gets or sets the maximum number of warning messages that can be logged in a burst.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.DiagnosticsLoggerOptions.WarningRate">
+      <summary>
+            Gets or sets the maximum expected rate at which warning messages are logged for rate limiting.
             </summary>
     </member>
     <member name="T:Gemstone.Diagnostics.DiagnosticsLoggerProvider">
@@ -145,14 +242,28 @@
             The provider for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
             </summary>
     </member>
-    <member name="M:Gemstone.Diagnostics.DiagnosticsLoggerProvider.#ctor">
+    <member name="M:Gemstone.Diagnostics.DiagnosticsLoggerProvider.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Gemstone.Diagnostics.DiagnosticsLoggerOptions},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Options.IConfigureOptions{Gemstone.Diagnostics.DiagnosticsLoggerOptions}})">
       <summary>
+            The provider for the <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" />.
+            </summary>
+      <param name="monitor">
         <markup>
-          <include item="SMCAutoDocConstructor">
-            <parameter>Gemstone.Diagnostics.DiagnosticsLoggerProvider</parameter>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>monitor</parameter>
+            <parameter>M:Gemstone.Diagnostics.DiagnosticsLoggerProvider.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Gemstone.Diagnostics.DiagnosticsLoggerOptions},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Options.IConfigureOptions{Gemstone.Diagnostics.DiagnosticsLoggerOptions}})</parameter>
           </include>
         </markup>
-      </summary>
+      </param>
+      <param name="configurers">
+        <markup>
+          <include item="SMCMissingParamTag">
+            <parameter>param</parameter>
+            <parameter>configurers</parameter>
+            <parameter>M:Gemstone.Diagnostics.DiagnosticsLoggerProvider.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{Gemstone.Diagnostics.DiagnosticsLoggerOptions},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Options.IConfigureOptions{Gemstone.Diagnostics.DiagnosticsLoggerOptions}})</parameter>
+          </include>
+        </markup>
+      </param>
     </member>
     <member name="M:Gemstone.Diagnostics.DiagnosticsLoggerProvider.CreateLogger(System.String)">
       <summary>
@@ -476,6 +587,16 @@
             The default file based log writer.
             </summary>
     </member>
+    <member name="P:Gemstone.Diagnostics.Logger.FirstChanceExceptionBurstLimit">
+      <summary>
+            Gets or sets the maximum number of first chance exception messages that can be logged in a burst.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.Logger.FirstChanceExceptionRate">
+      <summary>
+            Gets or sets the maximum expected rate at which first change exception messages are logged for rate limiting.
+            </summary>
+    </member>
     <member name="M:Gemstone.Diagnostics.Logger.GetStackMessages">
       <summary>
             Searches the current stack frame for all related messages that will be published with this message.
@@ -488,6 +609,11 @@
           </include>
         </markup>
       </returns>
+    </member>
+    <member name="P:Gemstone.Diagnostics.Logger.LogFirstChanceExceptions">
+      <summary>
+            Gets or sets the flag that determines if first chance exceptions are logged.
+            </summary>
     </member>
     <member name="M:Gemstone.Diagnostics.Logger.OverrideSuppressLogMessages">
       <summary>
@@ -541,6 +667,16 @@
         </markup>
       </returns>
     </member>
+    <member name="P:Gemstone.Diagnostics.Logger.SwallowedExceptionBurstLimit">
+      <summary>
+            Gets or sets the maximum number of swallowed exception messages that can be logged in a burst.
+            </summary>
+    </member>
+    <member name="P:Gemstone.Diagnostics.Logger.SwallowedExceptionRate">
+      <summary>
+            Gets or sets the maximum expected rate at which swallowed exception messages are logged for rate limiting.
+            </summary>
+    </member>
     <member name="M:Gemstone.Diagnostics.Logger.SwallowException(System.Exception,System.String,System.String,Gemstone.Diagnostics.MessageFlags)">
       <summary>
             Logs that a first chance exception was intentionally not handled for the provided reason.
@@ -566,6 +702,21 @@
           <include item="SMCMissingTag">
             <parameter>returns</parameter>
             <parameter>M:Gemstone.Diagnostics.LoggerExtensions.AddGemstoneDiagnostics(Microsoft.Extensions.Logging.ILoggingBuilder)</parameter>
+          </include>
+        </markup>
+      </returns>
+    </member>
+    <member name="M:Gemstone.Diagnostics.LoggerExtensions.AddGemstoneDiagnostics(Microsoft.Extensions.Logging.ILoggingBuilder,System.Action{Gemstone.Diagnostics.DiagnosticsLoggerOptions})">
+      <summary>
+            Adds Gemstone <see cref="T:Gemstone.Diagnostics.DiagnosticsLogger" /> to the factory.
+            </summary>
+      <param name="builder">The extension method argument.</param>
+      <param name="configureOptions">Action to configure logging options.</param>
+      <returns>
+        <markup>
+          <include item="SMCMissingTag">
+            <parameter>returns</parameter>
+            <parameter>M:Gemstone.Diagnostics.LoggerExtensions.AddGemstoneDiagnostics(Microsoft.Extensions.Logging.ILoggingBuilder,System.Action{Gemstone.Diagnostics.DiagnosticsLoggerOptions})</parameter>
           </include>
         </markup>
       </returns>
